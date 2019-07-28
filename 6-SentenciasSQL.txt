@@ -1,0 +1,138 @@
+Obten registros mediante condiciones
+	
+	Pdemos mostrar los registros en forma de cartas.
+		- SELECT * FROM libros\G;
+	Esto es recomendable cuando tenemos muchas columnas que mostrar ya que éstas se muestran verticalmente.
+
+	Es buena practica mostrar sólo la información que necesitemos ya que si imprimimos todos los campos de un registro con el *, esto podría resultar lento al momento de trabajar con tablas con muchos campo. Para esto ocupamos las condiciones.
+
+	Cambiamos el * por las columnas que queremos mostrar.
+		- SELECT libro_id, titulo FROM libros;
+
+	Usando WHERE hacemos uso de las condiciones. Ejemplo, mostrar todas las columnas de los registros de libros donde el título sea carrie.
+		- SELECT * FROM libros WHERE titlo = 'carrie';
+
+
+	Podemos usar los operadores relacionales que conocemos. > < <= >= != <>.
+	!= y <> son equivalentes para la condición diferente de.
+
+Operadores lógicos.
+	Los operadores que podemos utilizar son:
+		- AND
+			- SELECT * FROM libros WHERE titulo = 'carrie' AND autor_id = 1 AND ventas = 10;
+
+		- OR
+			- SELECT * FROM libros WHERE titulo = 'carrie' OR autor_id = 1 OR ventas = 10;
+		
+		- NOT
+
+*************************************************************************************
+Registros Nulos
+	A NULL no lo podemos tratar como un tipo de dato, si ejecutamos la siguiente sentencia:
+		- SELECT * FROM libros WHERE pseudonimo = NULL;
+
+	Nos arrojará un mensaje de que no hay ningun registro que cumpla esa condición, esto debido a que a NULL no lo podemos tratar como un tipo de dato como los demás. La manera correcta de ejecutar la sentencia anterior es asi:
+		- SELECT * FROM autores WHERE pseudonimo IS NULL;
+
+	La siguiente sentencia es equivalente a la anterior.
+		- SELECT * FROM autores WHERE pseudonimo <=> NULL;
+
+
+	Si queremos obtener los autores que SI tengan un pseudonimo, podemos negar la condición.
+		- SELECT * FROM autores WHERE pseudonimo IS NOT NULL;
+
+*************************************************************************************
+Registros mediante rangos.
+	
+	Para hacer consultas mediante rangos lo hacemos con BETWEEN y separando los rangos mediante AND
+		- SELECT titulo,fecha_publicacion FROM libros WHERE fecha_publicacion BETWEEN '1995-01-01' AND '2015-01-31';
+
+Búsqueda por listas.
+	
+	Podemos ejecutar la siguiente sentencia para hacer una búsqueda por lista, en este caso la lista es de titulos de libros, se coloca entre paréntesis seguido de IN.
+		- SELECT * FROM libros WHERE titulo IN ('Ojos de fuego', 'Cujo', 'Harry Potter y el cáliz de fuego');
+
+	De esta forma optimizamos la sentencia, esto en lugar de colocar muchos OR's, condicionando cada titulo del libro.
+
+Registros Únicos
+	
+	Para evitar ver valores repetidos ejecutamos la siguiente sentencia.
+		- SELECT DISTINCT titulo FROM libros;
+
+	Esto es útil poque por ejemplo, si tenemos dos títulos iguales pero de distinto autor y queremos visualizar los títulos, nos mostrará dos repetidos.
+
+Alías
+	
+	Los Alías son sobrenombres que podemos asignar a tablas, columnas o funciones.
+	El uso de Alías es útil cuando trabajamos con nombres complejos.
+	Establecer Alías a las columnas:
+		- SELECT autor_id AS autor, titulo AS nombre;
+		- SELECT 9*10 AS resultado;
+
+	Alías a tablas
+		- SELECT autor_id AS autor, titulo AS nombre FROM libros AS books;
+
+	Podemos especificar el de donde proviene la columna;
+		- SELECT books.autor_id AS autor, books.titulo AS nombre FROM libros AS books;
+
+*************************************************************************************
+Actualizar registros.
+	
+	- UPDATE libros SET descripcion = 'Nueva descripción', ventas = 100;
+	
+	Con la sentencia anterior se actualizan todos los registros de la tabla ya que no especificamos ninguna condición.
+	
+		- UPDATE libros SET descripcion = 'Nueva descripción', ventas = 50 WHERE titulo = 'El resplandor';
+
+*************************************************************************************
+Eliminar registros.
+	
+	Con la siguiente sentencia eliminamos todos los registros de libros, esto porque no agregamos ninguna condición.
+		- DELETE FROM libros;
+
+	Si queremos eliminar un grupo de libros en concreto:
+		- DELETE FROM libros WHERE autor_id = 1;
+
+		- DELETE FROM libros WHERE libro_id = 55;
+
+Eliminación en cascada.
+	
+	Si ejecutamos la siguiente sentencia esperando que se elimine el autore con id 1, mandará un error ya que esta tabla tiene como llave primaria una que se utiliza como llave foránea en otra tabla.
+		- DELETE FROM autores WHERE autor_id =1;
+
+	Para eliminar el autor con id 1, primero tenemos que eliminar sus libros con las siguientes sentencias en ese mismo orden.
+
+		- DELETE FROM libros WHERE autor_id = 1;
+		- DELETE FROM autores WHERE autor_id =1;
+
+	Cuando estamos trabajando con muchas tablas, esto resulta más laborioso, es por eso que en las tablas hijas tenemos que colocar junto a la declaración de la llave foranea una sentencia que indique que es posible hacer una eliminación en cascada.
+
+		- FOREIGN KEY(autor_id) REFERENCES autores(autor_id) ON DELETE CASCADE
+	
+	De esta forma podemos ejecutar la siguiente sentencia:
+		- DELETE FROM autores WHERE autor_id =1;
+
+	Con la sentencia anterior automáticamente se eliminan los libros de dicho autor y el mismo autor, es decir, se eliminan los registros hijos y el padre.
+
+	Otra opción es la siguiente, modificar la tabla una vez que ya esté declarada.
+		
+		- ALTER TABLE libros ADD FOREIGN KEY(autor_id) REFERENCES autores(autor_id) ON DELETE CASCADE
+
+*************************************************************************************
+Restaurar definición de una tabla
+	
+	Existe una sentencia para eliminar registros de una manera más sencilla que con DELETE.
+	Para eliminar todos los registros de una tabla.
+		- TRUNCATE TABLE libros;
+
+	La línea anterior es equivalente a la siguiente;
+		- DELETE FROM autores;
+	
+	Sin embargo existen diferencias.
+
+	La sentencia TRUNCATE resetea la definición de nuestra tabla, por esta razón se eliminan, si insertamos un nuevo registro, todas las sentencias de AUTO INCREMENT se resetean a 1.
+	Todos los campos se resetean a su valor inicial.
+	No podemos usar WHERE con TRUNCATE.
+	Con DELETE es posible recuperar registros, con TRUNCATE no.
+
+	Utilizaremos TRUNCATE cada vez que necesitemos reinicar la definición de la tabla.
