@@ -1,0 +1,61 @@
+¿Qué son las bases de datos?
+	Es un conjunto de datos organizados los cuales poseen una ralación entre sí, por ejemplo, una guía telefónica.
+
+	Entre los gestores más populares están MySQL y Postgres. Un gestor de bases de datos es un programa que nos permite trabajar con bases de datos.
+
+Modelo relacional.
+	Base de datos relacional. Colección de tablas las cuales almacenan información de forma estructurada. Una tabla poseé columnas y filas, esto es similar a las hojas de cálculo.
+	Cada tabla debe poseer una sola entidad.
+
+Lenguaje SQL.
+	Es el lenguaje para trabajar con bases de datos. El gestor más conocido es MySQL, éste es open source y está disponible para los sistemas operativos Windws, Linux y Mac. Tiene una versión gratuita.
+
+
+Instalación Linux
+	
+	sudo apt-get update
+	sudo apt-get install mysql-server
+		Colocamos la contraseña de root
+
+Restablecer constraseña root MySQL
+	
+
+	Si has perdido la contraseña de tu usuario root, no te preocupes, es posible restablecerla siguiendo los siguientes pasos.
+
+	    Si el servidor se encuentra en una maquina remota debemos de ingresar a esta mediante SSH
+
+	Lo primero que debemos de hacer es detener el servidor.
+
+		> mysql.server stop
+		> service mysqld stop
+		> mysqld stop
+
+	Una vez el servidor se encuentre detenido, debemos de reiniciarlo en un modo seguro.
+
+		sudo mysqld_safe --skip-grant-tables --skip-networkin
+
+	    --skip-grant-tables Permite conectarnos al servidor sin la necesidad de un password, además de otrogar todos los privilegios a la sesión.
+
+	    --skip-networkin Detiene la escucha de peticiones TCP/IP
+
+	Ahora, en una nueva pestaña, debemos de conectarnos al servidor utilizando el usuario root
+
+		mysql -u root
+
+	Una vez dentro del servidor, debemos de trabajar con la base de datos MySQL
+
+		USE mysql;
+
+	Con el cambio de base de datos haremos la actualización.
+
+		UPDATE user SET password=PASSWORD('tu_password') WHERE user='root';
+
+	Si la actualización fue exitosa debemos de salir del servidor
+
+		FLUSH PRIVILEGES;
+		exit
+
+	El paso final es detener el servidor en modo seguro. Iniciamos el servidor como te costumbre y nos autenticamos, la contraseña ya estará funcionando.
+
+		mysql -u root -p 
+

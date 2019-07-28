@@ -1,0 +1,148 @@
+Crear tablas
+	Antes de añadir tablas es necesario decile al gestor con que base queremos trabajar.
+		- USE libreria_cf;
+		Con esto le decimos al gestor que todos lo que hagamos a continuación será en dicha base de datos.
+
+	Abrimos un documento .sql, este documento se encuentra en la carpeta práctica con el nombre de sentencias.sql
+
+	Pasos:
+		- El primer paso es identificar qué identidades vamos a ocupar.
+		- Definir los atributos de las entidades.
+		- Colocar columna y valor del dato.
+		- Normalización. No tener datos duplicados o columnas compuestas.
+		- Cada entidad debe poseer un identificador.
+		- Crear la tabla.
+		- Ejecutar las sentencias en la shell de mysql.
+
+	VARCHAR() Puede almacenar una cadena hasta con una longitud de 2^16 pero lo podemos limitar.
+	CHAR() Puede almacenar hasta 256 caracteres.
+	DATE	Almacena una fecha, el formato es yyyy/mm/dd
+
+***************************************************************************************
+Tipos de datos
+
+	En general, la mayoría de los servidores de base de datos nos permiten almacenar los mismo tipo de datos, como strings, fechas y número.
+
+	En este post, listamos los tipos de datos que más utilizarás en tu día a día.
+	
+	* Alfanuméricos
+
+	    CHAR
+	    VARCHAR
+
+	En ambos casos nosotros debemos de especificar la longitud máxima que podrá almacenar el campo. Opcionalmente podemos definir el charset que almacenará.
+
+		varchar(20) character set utf8
+
+	    Con MySQL nosotros podemos establecer el charset que usará la base de datos desde su creación create database nombre character set utf8;
+
+	* Números enteros
+		Tipo 	Rango
+		Tinyint 	-128 a 127
+		Smallint 	-32,768 a 32,767
+		Mediumint 	−8,388,608 a 8,388,607
+		Int 	−2,147,483,648 a 2,147,483,647
+		Bigint 	−9,223,372,036,854,775,808 a 9,223,372,036,854,775,807
+	
+	* Números flotantes
+
+		Para los flotantes encontraremos dos tipos
+
+		    Float
+		    Double
+
+		En ambos casos nosotros debemos de especificar la cantidad de dígitos que almacenará la columna antes y después del punto (p,s)
+
+		precio FLOAT(3, 2)
+
+		En este caso la columna podrá almacenar hasta tres dígitos como enteros y dos después del punto decimal.
+
+		Ejemplo 999.99
+		Tiempo
+		Tipo 	Formato default
+		Date 	YYYY-MM-DD
+		Datetime 	YYYY-MM-DD HH:MI:SS
+		Timestamp 	YYYY-MM-DD HH:MI:SS
+		Time 	HHH:MI:SS
+
+***************************************************************************************
+Listar y eliminar tablas
+	
+	Para mostrar las tablas que tenemos
+		SHOW TABLES;
+
+	Para mostrar en qué base de datos estamos trabajando.
+		SELECT DATABASE();
+
+	Para eliminar tablas.
+		- DROP TABLE nombreDeLaTablaAEliminar;
+
+Obtener información de una tabla.
+	Definición de la tabla.
+		- SHOW COLUMNS FROM autores;
+	
+	Otra opción es:
+		- DESC autores;
+
+Crear tablas a partir de otras.
+	
+	- CREATE TABLE tablaNueva LIKE tablaBase;
+
+	Si ejecutamos el comando: 
+		- SHOW TABLES;
+
+	Nos mostrará dos tablas, podemos visualizar la definición de cada una y veremos que son idénticas.
+		- DESC tablaNueva;
+		- DESC tablaBase;
+
+***************************************************************************************
+Insertar registros
+	Para insertar un registro lo hacemos asi:
+		- INSERT INTO autores(autor_id, nombre, apellido, genero, fecha_nacimiento, pais_origen) VALUES (1, 'Test autor', 'Test autor', 'M', '2019-07-28', 'México');
+
+	Para hacer una consulta.
+		- SELECT * FROM autores;
+
+	Podemos hacer registros sin tener todos los camopos, por ejemplo.
+	
+		- INSERT INTO autores(autor_id, nombre) VALUES (2, 'Test autor');
+
+Ejecutar múltiples registros
+	
+	La mejor forma de insertar múltiples registros es ejecutar INSERT INTO una sola vez.
+		
+		- INSERT INTO autores(autor_id, nombre, genero, fecha_nacimiento, pais_origen) 
+		VALUES (6, 'Armando', 'M', '2019-07-28', 'México'),
+				(7, 'Mario', 'M', '2019-07-28', 'Perú'),
+				(8, 'Rubén', 'M', '2019-07-28', 'México'),
+				(9, 'Juan',  'M', '2019-07-28', 'México'),
+				(10, 'Elena', 'M', '2019-07-28', 'México');
+
+	Aunque parezcan muchas líneas de códgo, sólo es una con varas tuplas separadas por comas.
+
+***************************************************************************************
+
+Ejecutar archivos .SQL
+
+	Con el siguiente comando se ejecuta el archivo sin entrar a la shell de MySQL
+	- mysql -u root -p < sentencias.sql
+
+	Otra fomra es entrar a la shell de MySQL y ejecutar los siguiente;
+		- SOURCE sentencias.sql;
+		Esto nos muestra también un segimiento de los comandos que hemos ejecutado.
+
+***************************************************************************************
+Condicionar sentencias
+	
+	Si por ejemplo elimino una base de datos y después mando un comando de eliminar esa base de datos, me va a lanzar un error ya que no puedo eliminar una base de datos que no existe, para estos casos nos sirve condicionar sentencias.
+
+		- DROP DATABASE IF EXISTS libreria_cf;
+		Con el comando anterior decimos que elimine la base de datos si y sólo si existe.
+		
+
+Consultas rápidas.
+	
+	Podemos ejecutar sentencias sin iniciar sesión con la shell, esto lo hacemos de la siguiente manera.
+		- mysql -u root -p libreria_cf -e "SELECT * FROM autores"
+
+		Indicamos el usuario, la base con la que vamos a trabajar y el comando que queremos ejecutar.

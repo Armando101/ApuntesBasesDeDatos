@@ -1,0 +1,30 @@
+Restricciones
+	Los constraints son restricciones que podemos colocar a nuestras tablas. Esto nos sirve para evitar ciertos valores nulos, validar columnas únicas y asignar id's.
+
+	Con la siguiente declaración al momento de crear la tabla evitamos que el usuario ingrese un valor nulo en el campo nombre.
+		- nombre VARCHAR(25) NOT NULL
+
+	Con la siguiente sentecia logramos un valor unico, esto es, que no se puede haber dos registros con el mismo valor.
+		- pseudonimo VARCHAR(50) UNIQUE
+
+Valores por default
+	Podemos tener valores que se asignen automáticamente si es que no se especifica en el insert into.
+	Todas nuestras tablas deben de poseer un campo que nos permita saber cuando fue creado el registro.
+
+	Tenemos dos maneras de obtener la fecha exacta.
+		- SELECT current_timestamp
+		- SELECT NOW();
+
+	Para tener un campo que tenga la fecha en que fue creado.
+		- fecha_creacion DATETIME  DEFAULT current_timestamp
+
+Numeros positivos.
+	Si queremos que un tipo de dato numérico tenga sólo valores positivos.
+		- autor_id INT UNSIGNED NOT NULL
+
+Enumeraciones.
+	Si queremos que un campo tenga sólo ciertos valores lo hacemos con una enumeración.
+		- genero ENUM('M','F')
+
+	Usamos enum cuando las opciones son mínimas y sabemos que no van a cambiar a lo largo del tiempo. Enum no distingue entre mayúsculas y minúsculas al momento de ejecutar INSERT INTO.
+

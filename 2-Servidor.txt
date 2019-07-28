@@ -1,0 +1,60 @@
+Realizar conexión con el servido
+	- Abrir una terminal
+	
+	- Ejecutar el programa mysql.server dependiendo la versión se puede hacer de las siguientes 4 maneras. Esto es para iniciar el servidor, si no hacemos este paso y queremos ingresar nos marcará un error.
+		- cd /usr/local/mysql/support-files/mysql.server start 
+	    - /etc/init.d/mysqld start
+	    - service mysqld start
+	    - service mysql start
+
+	- Para detener el servidor lo podemos hacer de la siguientes maneras
+	    /etc/init.d/mysqld stop
+		service mysqld stop
+		service mysql stop
+
+    - Para reiniciarlo de las siguentes maneras
+	    /etc/init.d/mysqld restart
+	    service mysqld restart
+	    service mysql restart
+
+	- Conectarnos a la base mediante un cliente.
+		- Ejecutar el programa mysql con el comando:
+			mysql -u root -p -h localhost
+			mysql -u root -p -h 127.0.0.1
+
+			La bandera -p indica que el usuario root tiene una contrasea, la bandera -hace referencia a la dirección a la cual queremos conectarnos, como estamos trabajando en nuestra máquina podemos colocar localhost o 127.0.0.1
+
+	- Para salir ejecutamos en la shell de mysql el comando:
+		- quit
+
+****************************************************************************************
+Declarar varibales
+	
+	Para declarar variables usamos las siguientes sintaxis.
+		- SET @nombre="Codi";
+
+	Otra forma equivalente a la anterior
+		- SET @nombre := "Codi"
+
+	Podemos declarar más de una varibale en una misma línea
+		- SET @curso = "Base de datos", @gestor = "Mysql";
+
+	Para obtener datos del servidor.
+		- SELECT @nombre;
+		- SELECT @nombre, @curso, @gestor;
+
+	NOTA. Si cerramos sesión, todas las varibales declaradas se pierden.
+
+Crear base de datos
+
+	Para crear una base de datos lo hacemos con los siguientes comandos.
+		- CREATE DATABASE libreria_cf;
+
+	Para saber las bases de datos que tenemos.
+		- SHOW DATABASES;
+
+	Las bases: information_schema, performance_schema, sys y mysql son bases de datos propias del gestor, estas le indican datos de los usuaios, contraseñas, cómo se almacenan los datos, etc.
+
+	Eliminar una base de datos.
+		- DROP DATABASE base_aEliminar;
+	Es importante señalar que una vez eliminada la base de datos ya no hay vuelta atrás por lo que hay que tener mucho cuidado con este comando.
