@@ -18,7 +18,7 @@ País de origen
 
 
 CREATE TABLE IF NOT EXISTS autores (
-	autor_id INT UNSIGNED NOT NULL,
+	autor_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	nombre VARCHAR(25) NOT NULL,
 	apellido VARCHAR(25),
 	pseudonimo VARCHAR(50) UNIQUE,
@@ -28,33 +28,40 @@ CREATE TABLE IF NOT EXISTS autores (
 	fecha_creacion DATETIME DEFAULT current_timestamp
 );
 
-/*
-INSERT INTO autores(autor_id, nombre, apellido, genero, fecha_nacimiento, pais_origen)
-VALUES (1, 'Test autor', 'Test autor', 'M', '2019-07-28', 'México');
+CREATE TABLE IF NOT EXISTS libros (
+	libro_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	autor_id INT UNSIGNED NOT NULL,
 
-INSERT INTO autores(autor_id, nombre) VALUES (2, 'Test autor');
+	titulo VARCHAR(50) NOT NULL,
+	descripcion VARCHAR(250),
+	paginas INT UNSIGNED,
+	fecha_publicacion DATE NOT NULL,
+	fecha_creacion DATETIME DEFAULT current_timestamp,
+	FOREIGN KEY(autor_id) REFERENCES autores(autor_id)
+);
 
-INSERT INTO autores(autor_id, nombre, genero, pais_origen)
-VALUES (3, 'Test autor', 'M', 'Colombia');
+/* Insercción de autores*/
 
-INSERT INTO autores(autor_id, nombre, fecha_nacimiento, pais_origen)
-VALUES (4, 'Test autor', '1997-08-29', 'Brasil');
+INSERT INTO autores(nombre, apellido, pseudonimo, genero, fecha_nacimiento, pais_origen) 
+		VALUES ('Stephen Edwin', 'King', 'Richard Bachman','M', '1947-09-27', 'USA'),
+		('Joanne', 'Rowling', 'J.K. Rowling','F', '1947-09-27', 'Reino Unido');
 
-INSERT INTO autores(autor_id, nombre, apellido, genero, fecha_nacimiento, pais_origen)
-VALUES (5, 'Test autor', 'Test autor', 'F', '2000-07-28', 'Argentina');
-*/
 
-/* Insertando múltiples registros */
+/* Insercción de libros*/
+	
+INSERT INTO libros(autor_id, titulo, fecha_publicacion)
+	VALUES (1, 'Carrie', '1974-01-01'),
+			(1, 'El misterio de Salems Lot', '1975-01-01'),
+			(1, 'El resplandor', '1977-01-01'),
 
-INSERT INTO autores(autor_id, nombre, genero, fecha_nacimiento, pais_origen) 
-VALUES (1, 'Armando', 'M', '2019-07-28', 'México'),
-		(2, 'Mario', 'M', '2019-07-28', 'Perú'),
-		(3, 'Rubén', 'M', '2019-07-28', 'México'),
-		(4, 'Juan',  'M', '2019-07-28', 'México'),
-		(5, 'Elena', 'F', '2019-07-28', 'México');
-
-INSERT INTO autores(autor_id, nombre, apellido, pseudonimo, genero, fecha_nacimiento, pais_origen) 
-		VALUES (6, 'Stephen Edwin', 'King', 'Richard Bachman','M', '1947-09-27', 'USA');
+			(2, 'Harry Potter y la piedra filosofal', '1997-06-30'),
+			(2, 'Harry Potter y la camara secreta', '1998-07-2'),
+			(2, 'Harry Potter y el prisionero de Azkaban', '1999-07-8'),
+			(2, 'Harry Potter y el cáliz de fuego', '2000-03-20'),
+			(2, 'Harry Potter y la orden del fénix', '2003-06-21'),
+			(2, 'Harry Potter y el misterio del príncipe', '2005-06-16'),
+			(2, 'Harry Potter y las reliquias de la muerte', '2007-07-21');
 
 
 SELECT * FROM autores;
+SELECT * FROM libros;

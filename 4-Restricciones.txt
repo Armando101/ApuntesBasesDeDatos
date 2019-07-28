@@ -28,3 +28,81 @@ Enumeraciones.
 
 	Usamos enum cuando las opciones son mínimas y sabemos que no van a cambiar a lo largo del tiempo. Enum no distingue entre mayúsculas y minúsculas al momento de ejecutar INSERT INTO.
 
+***********************************************************************************
+Llaves primarias
+	
+	Cada tabla debe contener un identificador único, a este se le conoce como llave primaria.
+	En una tabla lo hacemos así.
+		- autor_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+
+	De esta forma indicamos que el campo al ser una llave, será NOT NULL y UNIQUE por defecto.
+	De esta manera podemos eliminar el campo autor_id al momento de hacer un INSERT INTO.
+
+Llaves foraneas
+	Las llaves foraneas sirven para hacer referencias entre tablas, solo que debemos de usar la palabra clave: FOREIGN KEY.
+
+	Si tenemos dos entidades, Autor y libros, poseen una relación 1-M. Pero hasta este punto, si queremos saber que libros escribió un autor, o qué autor escribió cierto libro, no tenemos forma de saberlo hasta ahora. Las llaves foraneas nos ayudarán a solucionar este problema.
+
+	Una llave foranea es una columna de una tabla que hace referencia a la llave primaria de otra tabla.
+
+	Es importante agregar la siguiente línea al final de la tabla
+		- autor_id INT UNSIGNED NOT NULL,
+		- FOREIGN KEY(autor_id) REFERENCES autores(autor_id)
+
+	Esto indica que contendrá un campo llamado autor_id que actuará como llave foranea, éste es el campo autor_id de la tabla autores.
+
+	NOTA: Es importante colocar primero la tabla padre y después la hija. En este caso la tabla padre es Autores y la hija es libros.
+
+***********************************************************************************
+Implementando restricciones
+	
+
+	* Valores únicos
+		Como sabemos, si nosotros necesitamos validar valores únicos usaremos el constraint UNIQUE.
+
+		CREATE TABLE usuarios( 
+		  usuario_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+		  nombre VARCHAR(50) UNIQUE
+		);
+
+		Otra forma de expresarlo, es de la siguiente manera.
+
+		CREATE TABLE usuarios( 
+		  usuario_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+		  nombre VARCHAR(50),
+		  CONSTRAINT UNIQUE (nombre)
+		);
+
+		    La palabra CONSTRAINT es opcional, sin embargo, por temas de legibilidad recomiendo colocarla.
+
+	* Valores mútiples columnas
+
+		Si necesitamos validar el valor único de una combinación de columnas lo haremos de la siguiente manera.
+
+		En este caso queremos validar que la combinación de nombre, apellido y matricula sean unicas en la tabla.
+
+		CREATE TABLE usuarios( 
+		  usuario_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		  nombre VARCHAR(50),
+		  apellido VARCHAR(50),
+		  matricula VARCHAR(10),
+		  CONSTRAINT unique_combinacion UNIQUE (nombre, apellido, matricula),
+		  PRIMARY KEY (usuario_id)
+		);
+
+	* Llaves primarias
+
+		Existen un par de formas con las cuales nosotros podemos definir un campo como una llave primaria.
+
+		CREATE TABLE usuarios( 
+		  usuario_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+		);
+
+		o
+
+		CREATE TABLE usuarios( 
+		  usuario_id INT UNSIGNED AUTO_INCREMENT,
+		  PRIMARY KEY(usuario_id)
+		);
+
+		En ambos casos el resultado es el mismo.
