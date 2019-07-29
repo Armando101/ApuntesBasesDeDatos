@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS libros (
 
 	titulo VARCHAR(50) NOT NULL,
 	descripcion VARCHAR(250),
-	paginas INT UNSIGNED,
+	paginas INT UNSIGNED NOT NULL DEFAULT 0,
 	fecha_publicacion DATE NOT NULL,
 	fecha_creacion DATETIME DEFAULT current_timestamp,
 	FOREIGN KEY(autor_id) REFERENCES autores(autor_id) ON DELETE CASCADE

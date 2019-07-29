@@ -1,0 +1,135 @@
+Al igual que en muchos lenguajes de programación, en MySQL podemos hacer uso de funciones.
+
+Funciones sobre strings
+
+CONCAT
+	Si queremos concatenar dos o más strings usamos CONCAT.
+		- SELECT CONCAT(nombre, apellido) FROM autores;
+
+	Podemos ver que concatena sin un espacio, tenemos que agregarlo manualmente.
+		- SELECT CONCAT(nombre, " ", apellido) FROM autores;
+
+	Colocamos un Alías.
+		- SELECT CONCAT(nombre, " ", apellido) AS nombre_completo FROM autores;
+
+LENGTH
+	La función LENGTH nos almacena el número de caracteres que poseé una cadena.
+		- SELECT LENGTH ("Hola mundo");
+
+	Si queremos mostrar la información de los autores cuyo nombre es mayor a 7:
+		- SELECT * FROM autores WHERE LENGTH(nombre) > 7;
+
+UPPER y LOWER
+	
+	UPPER muestra la cadena en mayúsculas y LOWER en minúsculas.
+		- SELECT UPPER(nombre), LOWER(nombre) FROM autores;
+
+TRIM
+	Eliminar los prefijos y sufijos de un string. Por default son los espacios.
+		- SELECT TRIM("   cadena con espacios al inicio y al final   ");
+
+LEFT y RIGTH
+	Nos permite mostrar un substring de una cadena. Reciben una cadena y un número, este indica el número de caracteres que tomará.
+		- SELECT LEFT ("Esta es una cadena de caracteres", 5) AS substring_izquierdo, RIGHT("Esta es una cadena de caracteres", 10) AS substring_derecho;
+
+	Imprimir todos los libros cuyo titulo comienze por Harry Potter
+		- SELECT * FROM libros WHERE LEFT(titulo, 12) = 'Harry Potter';
+
+	Imprimir todos los libros cuyo titulo termine por anillo;
+		- SELECT * FROM libros WHERE RIGHT(titulo, 12) = 'Harry Potter';
+
+******************************************************************************************
+Funciones sobre números
+	
+RAND
+	Nos muestra un número aleatorio entre 0 y 1;
+
+		- SELECT RAND();
+
+ROUND
+	Redondea un número.
+		- SELECT ROUND(RAND()*100);
+
+TRUNCATE
+	Trunca un número. El primer argumento es el número a Truncar y el segundo es el número de decimales que queremos.
+		- SELECT TRUNCATE(1.12346789, 3);
+
+POW
+	Muestra un número elevado a una potencia.
+		- SELECT POW(2,16);
+
+******************************************************************************************
+Fechas
+	
+	Guardamos la fecha exacta en una variable.
+		- SET @now = NOW()
+
+	Podemos Guardar varios atributos de la fecha actual.
+		- SECOND(@now),
+		  MINUTE(@now),
+		  HOUR(@now),
+		  MONTH(@now),
+		  YEAR(@now);
+
+	Es posible guardar el día de la semana o el día del mes.
+		- SELECT DAYOFWEEK(@now), DAYOFMONTH(@now), DAYOFYEAR(now);
+
+	Muestra la fecha.
+		- SELECT DATE(@now);
+
+	Aplicación.
+		Muestra todos los libros que fueron registrados hoy.
+
+		- SELECT * FROM libros WHERE DATE(fecha_creacion) = CURDATE();
+
+	También es posible agregar tiempo a fechas.
+	Agrega 30 días a la fecha de hoy.
+		- SELECT @now + INTERVAL 30 DAY;
+
+		Day puede ser reemplazado por SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR.
+
+******************************************************************************************
+Funciones sobre condiciones
+	
+	IF (condición, Ejecución si se cumple, Ejecución si no se cumple).
+		- SELECT IF (10 > 9, "El número es mayor", "El número no es mayor");
+
+		- SELECT IF (paginas=0, "El libro no posee páginas", paginas) FROM libros;
+
+	Si un valor es nullo.
+		- SELECT IFNULL(pseudonimo, "EL autor no cuenta con un pseudónimo") FROM autores;
+
+******************************************************************************************
+Crear funciones
+	
+
+	DELIMITER //
+
+	CREATE FUNCTION agregar_dias(fecha DATE, dias INT)
+	RETURNS DATE
+	BEGIN
+	    RETURN fecha + INTERVAL dias DAY;
+	END//
+
+	DELIMITER ;
+
+******************************************************************************************
+Listar funciones
+	
+	Usamos la tabla proc que está dentro de la base de datos mysql, está tabla almacena todos los procediures y funciones que están en mi equipo. La función database() nos devuelve la base de datos en la cual estamos trabajando. La siguiente sentencia nos muestra las funciones que hemos creado.
+		- SELECT name FROM mysql.proc WHERE db = database() AND type = 'FUNCTION';
+
+	Para eliminar una función lo hacemos de la siguiente manera.
+		- DROP FUNCTION agregar_dias;	
+
+	Si volvemos a consultar nuestras funciones, ya no estarán las que hemos borrado.
+
+******************************************************************************************
+Ejecutar sentencias dentro de funciones.
+	
+	CREATE FUNCTION obtener_paginas()
+	RETURNS INT
+	BEGIN
+	    SET @paginas = (SELECT(ROUND(RAND() * 100)*4));
+	    RETURN @paginas;
+	END//
