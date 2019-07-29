@@ -1,0 +1,102 @@
+Inner join
+	
+	Permite obtener registros que se encuentren en la intersección de dos tablas.
+
+		- SELECT titulo FROM libros
+		INNER JOIN autores ON libros.autor_id=autores.autor_id;
+
+	Unimos la tabla libros con autores, como queremos la intersección colocamos INNER JOIN, después colocamos la condición. Obtenemos los registros cuyo autor_id de libros sea autor_id de autores. Ahora mostramos el nombre del autor;
+			
+			-SELECT titulo, CONCAT(nombre, " ", apellido) AS Nombre_autor 
+			FROM libros INNER JOIN autores ON libros.autor_id=autores.autor_id;
+
+***********************************************************************************************
+Subclausula USING
+	Podemos usar USING, de esta forma no es necesaior especificar a qué tabla pertenece, pero se recomienda usa ON.
+
+		- SELECT titulo, CONCAT(nombre, " ", apellido) AS Nombre_autor 
+		FROM libros INNER JOIN autores USING(autor_id);
+
+	ON nos permite condicionar la unión de tablas.
+	Obtener el título de todos los libros y autores, siempre y cuando el autor tenga un pseudonimo
+
+		- SELECT libros.titulo, CONCAT(autores.nombre, " ", autores.apellido) AS Nombre_autor,
+		libros.fecha_creacion
+		FROM libros
+		INNER JOIN autores ON libros.autor_id=autores.autor_id AND autores.pseudonimo IS NOT NULL;
+
+*******************************************************************************************
+LEFT JOIN
+	Nos permite obtener registros de una tabla y de su intersección con otra.
+
+	Obtener el nombre completo de los usuarios y el id de los libros prestados.
+
+		- SELECT 
+		CONCAT(nombre, " ", apellidos),
+		libros_usuarios.libro_id
+		FROM usuarios
+		LEFT JOIN libros_usuarios ON usuarios.usuario_id = libros_usuarios.usuario_id;
+
+	De esta manera imprimimos todos los usuarios y los libros que han prestado, si hay un usuario que no prestó libros, se mostrará el usuario aún así.
+
+	Mostrar el nombre de los usuarios y el id de los libros prestados siempre y cuando el usuario haya prestado algún libro.
+
+		- SELECT 
+		CONCAT(nombre, " ", apellidos),
+		libros_usuarios.libro_id
+
+		FROM usuarios
+		LEFT JOIN libros_usuarios ON usuarios.usuario_id = libros_usuarios.usuario_id
+		WHERE libros_usuarios.libro_id IS NOT NULL;
+
+*******************************************************************************************
+Right join
+	
+	Permite obtener registros de la combinación de dos tablas, los registros pueden obtenerse en la intersección de ambas o en la tabla derecha.
+
+	Mostrar el nombre de los usuarios y el id de los libros prestados siempre y cuando el usuario haya prestado algún libro.
+
+	libros_usuarios = a
+		usuarios 	= b
+
+		- SELECT 
+		CONCAT(nombre, " ", apellidos),
+		libros_usuarios.libro_id
+
+		FROM libros_usuarios
+		RIGHT JOIN usuarios ON usuarios.usuario_id = libros_usuarios.usuario_id
+		WHERE libros_usuarios.libro_id IS NOT NULL;
+
+*******************************************************************************************
+Múltiples Joins
+	
+	Obtener el nombre completo de los usuarios que haya prestado un libro, el libro debió haber sido escrito por un autore con pseaudonimo y el prestamo se debió haber realizado el día de hoy.
+
+		usuarios
+		libros_usuarios
+		libros
+		autores
+
+	Podemos ir viendo el orden en que vamos a unir las entidades y hacerlo paso por paso
+
+		- SELECT DISTINCT
+		CONCAT(usuarios.nombre, " ", usuarios.apellidos) AS nombre_usuario
+		FROM usuarios
+		INNER JOIN libros_usuarios ON usuarios.usuario_id = libros_usuarios.usuario_id
+				AND DATE(libros_usuarios.fecha_creacion) = CURDATE()
+		INNER JOIN libros ON libros_usuarios.libro_id = libros.libro_id
+		INNER JOIN autores ON libros.autor_id = autores.autor_id AND autores.pseudonimo IS NOT NULL; 
+
+*******************************************************************************************
+Productos cartesianos
+	
+	Es el resultado de unir varias tablas sin usar joins, no es muy común el uso de	productos cartesianos.
+
+Usamos la sentencia CROSS JOIN
+	
+	Muestra el username de los usuarios junto con el título de un libro.
+		- SELECT usuarios.username, libros.titulo FROM usuarios CROSS JOIN libros ORDER BY username DESC;
+
+	De esta manera se asignó un libro a cada usuario, si por ejemplo quisieramos insertar todos estos registros en la tabla libros_usuarios lo hacemos asi:
+	
+		- SELECT INTO libros_usuarios (libro_id, usuario_id) SELECT libro_id, usuario_id FROM usuarios CROSS JOIN libros;

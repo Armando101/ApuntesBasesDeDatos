@@ -1,0 +1,145 @@
+Búsqueda mediante strings
+	
+	Buscar substring al principio, final y en medio.
+	Buscar los títulos que empiezen por Harry Potter.
+		- SELECT * FROM libros WHERE titulo LIKE 'Harry Potter%\G';
+
+	Buscar los títulos que terminen con anillo.
+		- SELECT * FROM libros WHERE titulo LIKE '%anillo';
+
+	Buscar los títulos que tengan la palabra 'la' sin importar en que posición se encuentren.
+		- SELECT * FROM libros WHERE titulo LIKE '%la%'\G;
+
+	Buscar un título que contenga 5 caracteres. Colocamos 5 guiones bajos.
+		- SELECT * FROM libros WHERE titulo LIKE '_____';
+	
+	Buscar un título que su segunda letra sea 'a', sin importar la longitud.
+		- SELECT * FROM libros WHERE titulo LIKE '_a%';
+	
+	Buscar un título que su segunda letra sea 'a' y la quinta 'o', sin importar la longitud.
+		- SELECT * FROM libros WHERE titulo LIKE '_a__o%'\G;
+
+	Como podemos ver LIKE es una sentencia muy poderosa.
+
+***********************************************************************************************
+Expresiones regulares
+	
+	Obtener los registros cuyo título comienze con la letra H o con la letra l;
+		- SELECT titulo FROM libros WHERE titulo REGEXP '^[hl]';
+
+Ordenar registros
+	Mostrar los registros alfabéticamente Ascendente.
+		- SELECT titulo FROM libros ORDER BY titulo;
+	
+	Mostrar los registros alfabéticamente Descendente.
+		- SELECT titulo FROM libros ORDER BY titulo DESC;
+
+	También podemos ordenar enteros, fechas, entre otras.
+		- SELECT libro_id, titulo FROM libros ORDER BY libro_id ASC;
+
+***********************************************************************************************
+Limitar registros
+	
+	Mostrar los 10 primeros títulos.
+		- SELECT titulo FROM libros LIMIT 10;
+	
+	Mostrar los 5 primeros títulos del autor que tiene id = 2.
+		- SELECT titulo FROM libros WHERE autor_id = 2 LIMIT 5;
+
+	Mostrar 10 títulos empezando por el 5.
+		- SELECT titulo FROM libros LIMIT 5, 10;
+
+***********************************************************************************************
+Funciones de agregación
+	
+	COUNT
+		Nos permite contar registros.
+			- SELECT COUNT(*) FROM autores;
+
+		Podemos colocar condiciones.
+			- SELECT COUNT(*) AS total FROM autores WHERE pseudonimo IS NOT NULL;
+
+		Es posible sustituir el * por una columna.
+			- SELECT COUNT(pseudonimo) AS total FROM autores;
+
+			Si el registro tiene NULL en pseudonimo, no lo toma en cuenta, sólo cuenta cuantos autores tienen pseudonimo.
+
+	SUM
+		Sumar las ventas.	
+			- SELECT SUM(ventas) FROM libros;
+
+	MAX y MIN
+		Obtener el número máximo y mínimo.
+			- SELECT MAX(ventas) FROM libros;
+			- SELECT MIN(ventas) FROM libros;
+
+	AVG
+		Obtiene el promedio.
+			- SELECT AVG(ventas) FROM libros;
+
+***********************************************************************************************
+Agrupamiento.	
+		
+	Obtenen cuantos librios vendió cada autor.
+		- SELECT autor_id, SUM(ventas) FROM libros GROUP BY autor_id;
+
+	Obtener el autor que vendió más libros.
+		- SELECT autor_id, SUM(ventas) AS total FROM libros GROUP BY autor_id ORDER BY total DESC LIMIT 1;
+
+Condiciones bajo agrupamiento.
+	
+	Obtener los autores que hayan vendido más de 100,000 ejemplares.
+		- SELECT autor_id, SUM(ventas) AS total FROM libros GROUP BY autor_id HAVING total;
+
+	No podemos usar la sentencia WHERE ya que estamos trabajando con funciones de agregación.
+
+***********************************************************************************************
+Unir resultados
+	El operador UNION nos permite trabajar con varios datasets.
+
+	Podemos visualizar los datasets con los que vamos a trabajar.
+		- SELECT CONCAT(nombre, " ", apellidos) AS nombre_completo FROM usuarios;
+		- SELECT CONCAT(nombre, " ", apellido) AS nombre_completo FROM autores;
+
+	Para hacer una consulta que una las dos consultas anteriores:
+		- SELECT CONCAT(nombre, " ", apellido) FROM autores
+			UNION
+			SELECT CONCAT(nombre, " ", apellidos) FROM usuarios;
+
+	Es importante que para hacer las uniones, las dos tablas deben coincidir en sus columnas, de lo contrario agregamos una cadena vacía;
+		- SELECT CONCAT(nombre, " ", apellido) AS nombre_completo, "" FROM autores
+			UNION
+			SELECT CONCAT(nombre, " ", apellidos) AS nombre_completo, email FROM usuarios;
+
+***********************************************************************************************
+Sub consultas
+	Son consultras dentro de otras, dicho de otra forma, consultas anidadas. Para esto colocamos la subconsulta dentro de paréntesis.
+
+		- SELECT autor_id FROM libros 
+		GROUP BY autor_id 
+		HAVING SUM(ventas) > (SELECT AVG(ventas) FROM libros);
+
+	Otro ejemplo más elaborado es el siguiente.
+
+		-SELECT CONCAT(nombre, " ", apellido) AS Nombre_Autor
+		FROM autores
+		WHERE autor_id IN (
+
+		SELECT autor_id FROM libros 
+		GROUP BY autor_id 
+		HAVING SUM(ventas) > (SELECT AVG(ventas) FROM libros));
+
+	En la primera subconsulta obtiene el promedio, en la segunda obtiene los id's de los autores en una lista, después concatena el nombre de los autores comparando los id's de la lista.
+
+***********************************************************************************************
+Validar registros
+	
+	Usamos la sentencia EXISTS, regresa verdadero si existe al menos un registro.
+
+	Mostrar si está disponible o no un registo cuyo nombre sea El hobbit
+
+		- SELECT IF (EXISTS(SELECT libro_id FROM libros WHERE titulo = 'El hobbit'),'Disponible','No Disponible') AS Disponibilidad;
+		
+	Es importante colocar la llave primaria dentro del EXISTS, podemos usar * pero se hará más lento el proceso.
+
+
