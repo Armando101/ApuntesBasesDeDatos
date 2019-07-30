@@ -1,0 +1,145 @@
+Procedimientos almacenados
+	
+	Se ejecutan directamente en el motor de base de datos, pueden recibir parámetros, cada gestor tiene diferencte sintaxis.
+
+Crear Procedimientos.
+	Generar un procedure que nos permita prestar libros.
+
+		DELIMITER //
+		/* usuario_id me permite saber a qué usuario se le va prestar un libro
+		libro_id me permite saber qué libro voy a prestar  */
+
+		/* Inserta un registro en libros_usuarios y resta en 1 el stock */
+		
+		CREATE PROCEDURE prestamo(usuario_id INT, libro_id INT)
+
+		BEGIN
+			INSERT INTO libros_usuarios(libro_id, usuario_id) VALUES (libro_id, usuario_id);
+			UPDATE libros SET stock = stock-1 WHERE libros.libro_id = libro_id;
+		END //
+
+		DELIMITER ;
+
+	Listar procedures.
+		Se listan similar a como se listan las funciones.
+
+		- SELECT name FROM mysql.proc WHERE db=database() AND type = 'PROCEDURE';
+
+	Mandar a llamar un procedure.
+		Colocamos los argumentos.
+		- CALL prestamo(3, 20);
+
+		Ahora podemos ver que ya se añadio un registro a la tabla libros_usuarios.
+
+		- SELECT * FROM libros_usuarios
+
+	Ahora vemos que el stock de ese libro ha sido modificado.
+		- SELECT * FROM libros WHERE libro_id = 20\G;
+
+
+	Resumen: para crear procedure lo hacemos de la siguiente manera:
+		- CREATE PROCEDURE prestamo(usuario_id INT, libro_id INT)
+
+	Entre paréntesis van los parámetrso.
+	Para mandarlo a llamar.
+		- CALL prestamo(3, 20);
+
+	Pasando entre paréntesis los argumentos.
+
+
+****************************************************************************************
+Eliminar procedimientos.
+	Para ver los procedures:
+		- SELECT name FROM mysql.proc WHERE db=database() AND type = 'PROCEDURE';
+
+	Para eliminarlo:
+		- DROP PROCEDURE prestamo;
+
+****************************************************************************************
+Modificar un procedure.
+	No es posible modificar un procedure, lo que se tiene que hacer es borrar el procedure y hacer uno nuevo con los cambios necesarios.
+
+****************************************************************************************
+Obtener valores.
+	
+	A diferencia de las funciones, los procedures no pueden retornar valores. Lo que hace un procedure es tomar un valor de entrada y modificarlo internamente, los valores de entrada son los parámetros.
+
+	La sintaxis es la siguiente:
+		- CREATE PROCEDURE prestamo(usuario_id INT, libro_id INT, OUT cantidad INT)
+		BEGIN ....
+			SET cantidad = (SELECT stock FROM libros WHERE libros.libro_id=libro_id);
+			.....
+			.....
+		END//
+	El valor que queremos modificar se coloca como parámetro con OUT.
+
+	Declaramos una variable.
+		- SET @cantidad =-1;
+
+	Llamamos el procedure pasando como argumento la variable a modificar.
+		- CALL prestamo(3, 20, @cantidad);
+
+	Vemos la variable modificada.
+		- SELECT @cantidad;
+
+	Podemos ver que se ha modificado el stock.
+		- SELECT * FROM libros WHERE libro_id = 20\G;
+
+****************************************************************************************
+Condicionales
+	
+	Los procedures están pensados para realizar tareas complejas, dichas tareas requieren condiciones y ciclos.
+
+	La sintaxis de las condiciones es la siguiente.
+
+		- 	IF cantidad >0 THEN
+			.... (Código a ejecuta si se cumple la condición)
+
+		ELSE
+			... (Si no se cumple la condición)
+
+		END IF;
+
+****************************************************************************************
+Casos
+	
+	Es el equivalente a un switch case en un lenguaje de programación.
+
+CASE
+		WHEN @cantidad > 20 THEN
+			SELECT "Fanático" AS mensaje;
+
+		WHEN @cantidad > 10 AND @cantidad <20 THEN 
+			SELECT "Aficionado" AS mensaje;
+
+		WHEN @cantidad > 5 AND @cantidad <10 THEN 
+			SELECT "Promedio" AS mensaje;
+		ELSE
+			SELECT "Nuevo" AS mensaje;
+END CASE;
+
+****************************************************************************************
+Ciclos
+	
+WHILE
+
+	SET @iteracion = 0;
+
+		WHILE @iteracion < 5 DO
+
+			SELECT libro_id, titulo FROM libros ORDER BY RAND() LIMIT 1;
+			SET @iteracion = @iteracion + 1;
+
+		END WHILE;
+
+REPEAT
+	
+	SET @iteracion = 0;
+
+	REPEAT
+
+		SELECT libro_id, titulo FROM libros ORDER BY RAND() LIMIT 1;
+		SET @iteracion = @iteracion + 1;
+
+		UNTIL @iteracion >=5	/* AQUI NO HAY ; */
+	END REPEAT;
