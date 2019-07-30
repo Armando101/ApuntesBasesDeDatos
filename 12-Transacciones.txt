@@ -1,0 +1,85 @@
+Bloqueo de tablas
+	
+	Podemos bloquear las tablas para para que otro usuario no pueda hacer transacciones, esto es de ayuda para evitar hacer dos transacciones a la vez. Bloqueamos la tabla para un usuario mientras otro hace algún procedimiento y cuando éste termina, se desbloquea para que el otro usuario la pueda utilizar.
+
+	Existen dos tipos de bloqueo.
+		- Cuando se ejecuta una consulta, insersión, actualización o eliminación.
+		- Cuando se ejecuta una insersión, actualización o eliminación, en este tipo no se bloquean las consultas.
+
+Transacciones
+	
+	Las transacciones son un mecanismo que nos permite agrupar n cantidad de sentencias sql en una sóla, a esta propiedad se le conoce como atomicidad.
+
+	Las transacciones tienen tres estados: antes, durante y después de la transacción.
+	Los estados durante y después parecen similares, sin embargo en el estado durante, se pueden revertir los efectos, por ejemplo:
+		Si quiero sacar $100 de mi cuenta y sólo tengo $70, en el estado durante estoy obteniendo el dinero, como no tengo saldo suficiente, éste paso se revierte dejando todo como estaba sin hacer ningún cambio.
+
+	Las transacciones son sirven para ejecutar n sentencias como una sola y solo se ejecutarán todas si todas son exitosas.
+
+Implementar transacciones
+	
+	Con la sentencia START TRANSACTION indico que todos los querys que voy a ejecutar se ejecuten como uno solo.
+
+	START TRANSACTION;
+	
+		SET @libro_id = 20, @usuario_id = 3;
+		
+		UPDATE libros SET stock = stock - 1 WHERE libros.libro_id = @libro_id;
+		SELECT stock FROM libros WHERE libro_id = @libros_usuarios;
+
+		INSERT INTO libros_usuarios(libro_id, usuario_id) VALUES(@libro_id, @usuario_id);
+
+		SELECT * FROM libros_usuarios;
+
+	COMMIT;
+
+	Con COMMIT indico que he terminado la transacción y todo lo que acabo de hacer se guarde.
+
+	Si una sentencia dentro de la transacción manda un error, ejecutamos ROLLBACK; para volver al punto anterior a empezar la transacción.
+
+	COMMIT y ROLLBACK terminan la transacción. COMMIT la termina guardando los cambios y ROLLBACK los revierte.
+
+***********************************************************************************************
+Transacciones y store prcedures
+	
+			DELIMITER //
+		CREATE PROCEDURE prestamo_tr(usuario_id INT, libro_id INT)
+		BEGIN
+			
+			DECLARE EXIT HANDLER FOR SQLEXCEPTION -- Ocurre un error
+			BEGIN
+				-- Código a ejecutar si hay un error
+				ROLLBACK;
+			END;
+
+			START TRANSACTION;
+				
+				INSERT INTO libros_usuarios(libro_id, usuario_id) VALUES(libro_id, usuario_id);
+				UPDATE libros SET stock = stock - 1 WHERE libros.libro_id = libro_id;
+
+			COMMIT;
+
+		END //
+
+		DELIMITER ;
+
+	Ahora podemos ver cuantos libros tenemos en stock.
+
+		- SELECT stock FROM libros WHERE libro_id=20;
+
+	Vamos a llamar al procedure.
+
+		- CALL prestamo_tr(3, 20);
+
+	Volvemos a consular los libros que hay en stock.
+		- SELECT stock FROM libros WHERE libro_id=20;
+
+	Como podemos ver se ha disminuido en 1, es decir, funciona correctamente.
+
+	Si por ejemplo ingresamos un dato invalido.
+		- CALL prestamo_tr(300, 20);
+
+	No nos marca ningún error porque usamos un ROLLBACK, por lo tanto no ha hecho ningún cambio la transacción pero no marcó error.
+		- SELECT stock FROM libros WHERE libro_id=20;
+	
+	Podemos ver que el stock sigue intácto.
