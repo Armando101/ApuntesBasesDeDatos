@@ -1,0 +1,402 @@
+Motores de almacenamiento en MySQL
+
+    Afortunadamente para nosotros, los administradores de base de datos, MySQL nos permite trabajar con diferentes motores de almacenamiento, entre los que destacan MyISAM e InnoDB.
+
+    ¿Motor de almacenamiento?, ¿Qué es eso? 🤔, verás, un motor de almacenamiento se el encargado de almacenar, gestionar y recuperar toda la información de una tabla. Es por ello que es de suma importancia que nosotros conozcamos la existencia de estos motores, cuales son sus principales diferencias y en qué casos es bueno utilizar uno u otro, de esta forma que podamos garantizar un mejor performance en nuestras aplicaciones. 😉
+
+    Para que nosotros conozcamos que motor de almacenamiento podemos utilizar basta con ejecutar la siguiente sentencia en nuestra terminal.
+
+        - SHOW ENGINES;
+
+    Obtendremos el siguiente listado.
+
+        InnoDB
+        MRG_MYISAM
+        MEMORY
+        BLACKHOLE
+        MyISAM
+        CSV
+        ARCHIVE
+        PERFORMANCE_SCHEMA
+        FEDERATED
+
+    En esta ocasión nos centraremos en explicar los dos motores de almacenamiento más populares, me refiero a MyISAM e InnoDB.
+
+    MyISAM es el motor por default de MySQL. Una de las principales ventajas de este motor es la velocidad al momento de recuperar información. MyISAM es una excelente opción cuando las sentencias predominantes en nuestra aplicación sean de consultas. Esta es una de las razones por las cuales MyISAM es tan popular en aplicaciones web.
+
+        Si tu aplicación necesita realizar búsquedas full-text MyISAM es un mejor opcion.
+
+    La principal desventajas de MyISAM recae en la ausencia de atomocidad, ya que no se comprueba la integridad referencial de los datos. Se gana tiempo en la inserción, sí, pero perdemos confiabilidad en los datos.
+
+    Por otro lado tenemos el motor de almacenamiento InnoDB. La principal ventaja de este motor recae en la seguridad de las operaciones. InnoDB permite la ejecución de transacciones, esto nos garantiza que los datos se persisten de forma correcta y si existe algún error podamos revertir todos los cambios realizados.
+
+    Algo interesante a mencionar sobre InnoDB es que este motor realiza un bloqueo total sobre un tabla cuando es ejecutada una se las siguientes sentencias.
+
+        Select
+        Insert
+        Update
+        Delete
+
+    Si deseamos trabajar con transacción y la integridad de los datos sea crucial nuestra mejor opción será InnoDB, por otro lado, sí lo que deseamos es una mayor rapidez al momento de obtener información será necesario utilizar MyISAM.
+    
+Gestión
+
+    Si nosotros así lo deseamos podemos cambiar el motor de almacenamiento. Existen dos formas de hacer esto. La primera, es modificar el archivo my.cnf.
+
+        [mysqld]
+        default-storage-engine = innodb
+
+    La segunda forma es hacerlo directamente desde nuestra sección, basta con ejecutar la siguiente sentencia.
+
+        - SET storage_engine=INNODB;
+
+    En ambos casos modificamos el motor de almacenamiento de MyISAM a InnoDB.
+
+    Si nosotros deseamos conocer qué motor de almacenamiento utiliza una tabla en particular, podemos hacerlo ejecutando la siguiente sentencia.
+
+        - SHOW TABLE STATUS WHERE `Name` = 'tabla' \G;
+
+    Si deseamos crear una tabla utilizando un motor en particular, debemos seguir la siguiente estructura.
+
+        CREATE TABLE tabla_innodb (id int, value int) ENGINE=INNODB;
+        CREATE TABLE tabla_myisam (id int, value int) ENGINE=MYISAM;
+        CREATE TABLE tabla_default (id int, value int);
+
+*******************************************************************************************
+Eventos MySQL
+    
+    A partir de la versión 5.1, MySQL añade el concepto de eventos. Un evento no es más que una tarea la cual se ejecuta de forma automática en un momento previamente programado. Si eres un usuarios Linux puedes ver a los eventos cómo los cron jobs .
+
+    Los eventos nos permitirán a nosotros cómo administradores de base de datos programar ciertas tareas las cuales queremos que se ejecuten de forma periódica o en un momento en concreto, de tal manera que podamos automatizar ciertos procesos.
+
+* Ejemplos
+
+    Para este tutorial me apoyaré de mi tabla test.
+
+            CREATE TABLE test(
+             evento VARCHAR(50),
+             fecha DATETIME 
+            ); 
+
+    Lo primero que debemos de hacer es habilitar nuestro servidor para que pueda ejecutar eventos.
+
+            SET GLOBAL event_scheduler = ON;
+
+    Posteriormente creamos nuestro evento; En mi caso, tendrá el nombre de insertion event. Este evento se ejecutará dentro de 1 min, y lo que hará, será insertar un registro en mi tabla.
+
+            CREATE EVENT insertion_event
+            ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 MINUTE
+            DO INSERT INTO test VALUES ('Evento 1', NOW());
+
+        El nombre del evento no debe de poseer más de 64 caracteres.
+
+    Si queremos que el evento se ejecute en una fecha en concreto, únicamente debemos de especificarlo en ON SCHEDULE AT. Recuerda, el formato es año-mes-día hora:minuto:segundo.
+
+            ON SCHEDULE AT '2018-12-31 12:00:00'
+
+    Si nuestro evento ejecutará más de una sentencia SQL debemos de apoyarnos de BEGIN y END.
+
+            DELIMITER //
+
+            CREATE EVENT insertion_event
+            ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 MINUTE
+            DO
+            BEGIN
+             INSERT INTO test VALUES ('Evento 1', NOW());
+             INSERT INTO test VALUES ('Evento 2', NOW());
+             INSERT INTO test VALUES ('Evento 3', NOW());
+            END //
+
+            DELIMITER ;
+
+    Una vez el evento se haya creado, nosotros podemos listarlo.
+
+          SHOW events\G;
+
+    Si queremos eliminar un evento haremos uso de DROP.
+
+        DROP EVENT nombre_evento;
+
+    Es importante mencionar que una vez el evento haya expirado, este, será eliminado de forma automática. Si nosotros no queremos que esto ocurra debemos de apoyarnos de ON COMPLETION
+
+            ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 MINUTE
+            ON COMPLETION PRESERVE
+            ...
+
+    Algo común con los eventos es trabajar con store procedures.
+
+            CREATE EVENT nombre_evento
+            ON SCHEDULE AT 'fecha de ejeución' 
+            DO
+            CALL store_procedure();
+
+* Eventos periódicos.
+
+    Los eventos los podemos programar para que se ejecuten de forma periódica.
+
+            CREATE EVENT insertion_event
+            ON SCHEDULE EVERY 1 MINUTE STARTS '2018-07-07 18:30:00'
+            DO INSERT INTO test VALUES ('Evento 1', NOW());
+
+    En esta ocasión, el evento se ejecuta cada minuto después de las 6:30 PM. Podemos programar la ejecución para cada segundo, minuto, hora, semana, mes o año.
+
+    Si nosotros queremos que el evento se ejecute entre un rango de fechas debemos de apoyarnos de ENDS.
+
+            CREATE EVENT insertion_event
+            ON SCHEDULE EVERY 1 MINUTE STARTS '2018-07-07 18:30:00'
+            ENDS '2018-07-07 19:00:00'
+            DO INSERT INTO test VALUES ('Evento 1', NOW());
+
+    Ahora, el evento se ejecuta durante un periodo de 30 minutos (De 6:30 PM a 7:00 PM).
+
+* Editar eventos
+
+    Si por alguna razón necesitamos detener un evento, lo que debemos de hacer es deshabilitarlo.
+
+            ALTER EVENT nombre_evento
+            DISABLE;
+
+    Para habilitar nuevamente un evento colocamos ENABLE.
+
+            ALTER EVENT nombre_evento
+            ENABLE;
+
+* Detener eventos
+
+    Para detener completamente todos los eventos, debemos de ejecutar la siguiente sentencia.
+
+            SET GLOBAL event_scheduler = OFF;
+
+* Estructura de un evento
+
+    Los eventos en MySQL pueden ser tan complejos como nosotros los deseemos.
+
+            CREATE
+                [DEFINER = { user | CURRENT_USER }]
+                EVENT
+                [IF NOT EXISTS]
+                event_name
+                ON SCHEDULE schedule
+                [ON COMPLETION [NOT] PRESERVE]
+                [ENABLE | DISABLE | DISABLE ON SLAVE]
+                [COMMENT 'string']
+                DO event_body;
+
+            schedule:
+                AT timestamp [+ INTERVAL interval] ...
+              | EVERY interval
+                [STARTS timestamp [+ INTERVAL interval] ...]
+                [ENDS timestamp [+ INTERVAL interval] ...]
+
+            interval:
+                quantity {YEAR | QUARTER | MONTH | DAY | HOUR | MINUTE |
+                          WEEK | SECOND | YEAR_MONTH | DAY_HOUR | DAY_MINUTE |
+                          DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND}
+
+********************************************************************************************
+Cursores MySQL
+
+    En base de datos un Cursor es un mecanismo el cual nos permite procesar fila por fila el resultado de una consulta.
+
+    Como sabemos SQL es un lenguaje orientado a conjuntos. Si nosotros deseamos alterar ciertos elementos en nuestra colección tendremos que hacerlo mediante condicione. Única y exclusivamente los elementos que cumpla con dichas condiciones podrán ser alterados. Con los cursores podremos trabajar con cada uno de los elementos (filas) de nuestra consulta sin tener que obtener nuevos conjuntos. Esto nos permitirá ser mucho más flexibles al momento de manipular la información.
+
+    Para nosotros poder hacer uso de un cursor será necesario seguir los siguientes pasos.
+
+        Crear un cursor a partir de una sentencia SQL.
+        Apertura del cursor.
+        Acceso a datos.
+        Cierre del cursor.
+
+        Es importante mencionar que en MySQL los cursores solo podrán ser utilizados dentro de stored procedures.
+
+* Veamos un ejemplo.
+
+    1.-Crear un stored procedure el cual incremente en 10 el número de páginas de cada libro (tabla libros). En consola debemos visualizar el título, el anterior número de páginas y el actual número de páginas de cada libro.
+
+    Bien, este ejemplo nos permitirá comprender de una mejor manera el uso de cursores.
+
+    Veamos como pudiese quedar nuestro stored procedure.
+
+            DELIMITER //
+
+            DROP PROCEDURE IF EXISTS facilito_procedure//
+            CREATE PROCEDURE facilito_procedure()
+            BEGIN
+
+              DECLARE var_id INTEGER;
+              DECLARE var_paginas INTEGER;
+              DECLARE var_titulo VARCHAR(255);
+              DECLARE var_final INTEGER DEFAULT 0;
+
+              DECLARE cursor1 CURSOR FOR SELECT libro_id, titulo, paginas FROM libros;
+
+              DECLARE CONTINUE HANDLER FOR NOT FOUND SET var_final = 1;
+
+              OPEN cursor1;
+
+              bucle: LOOP
+
+                FETCH cursor1 INTO var_id, var_titulo, var_paginas;
+
+                IF var_final = 1 THEN
+                  LEAVE bucle;
+                END IF;
+
+                UPDATE libros SET paginas = var_paginas + 10 WHERE libro_id = var_id;
+
+                SELECT
+                  var_titulo AS  'titulo',
+                  var_paginas AS 'Anterior',
+                  paginas AS 'Incremento'
+                  FROM libros WHERE libro_id = var_id;
+
+
+              END LOOP bucle;
+              CLOSE cursor1;
+
+            END//
+            DELIMITER ;
+
+    Dentro del stored procedure lo primero que hacemos es declarar todas las variables que usaremos. En este caso como trabajaremos con el título y el número de páginas de cada libro declaró tres nuevas variables. var_id, var_paginas, var_titulo.
+
+    Para tener un control sobre la iteración de cada uno de los elementos en la consulta declaró una cuarta variable llamada var_final, cuyo valor comienza en 0.
+
+    Una vez hemos declarado todas las variables procedemos a crear nuestro cursor. El cursor se creará a partir de una consulta SQL. En este caso la consulta no es demasiado compleja, sin embargo, si así lo deseamos podemos crear un cursos a partir de una consulta con joins, order, group etc...
+
+    Con la sentencia
+
+            DECLARE CONTINUE HANDLER FOR NOT FOUND SET var_final = 1;
+
+    Indicamos que una vez todos los elementos (filas) dentro de nuestro cursor hayan sido iterados la variable var_final tomará un nuevo valor, de 0 a 1.
+
+    Para comenzar la iteración de los elementos será necesario abrir el cursor.
+
+            OPEN cursor1;
+
+    La iteración la logramos utilizando un Loop, el cual será controlado a partir de la variable var_final.
+
+                IF var_final = 1 THEN
+                        --Si ya no existen más elementos finalizamos el ciclo.
+                  LEAVE bucle;
+                END IF;
+
+    Al nosotros usar la cláusula Fetch obtenemos el elemento (fila) actual de nuestra consulta y avanzamos al siguiente elemento.
+
+    En este caso como en nuestra consulta hemos obtenido 3 columnas (id, titulo, páginas) asignamos el valor de cada una de las columnas a nuestras variables. Es importante mencionar que los valores podrán ser asignados únicamente a variables del mismo tipo, no podremos asignar un varchar a una variable de tipo integer.
+
+    El orden es importante.
+
+        FETCH cursor1 INTO var_id, var_titulo, var_paginas;
+
+    Una vez hemos realizado todas las tareas correspondientes y se han iterado todos los elementos (filas) el siguiente paso será cerrar el cursor.
+
+          close cursor1
+
+    Para ejecutar nuestro stored prcedure ejecutaremos la siguiente sentencia.
+
+         call facilito_procedure();
+
+*******************************************************************************************
+Respaldo de información
+    
+    En MySQL nosotros podemos realizar respaldos de nuestra información, para ello, utilizaremos la aplicación mysqldump.
+
+    Si queremos realizar el respaldo de una sola base de datos ejecutaremos el siguiente comando en nuestra terminal.
+
+        - mysqldump base_de_datos > ruta/archivo_respaldo.sql
+
+    Si lo que necesitamos es realizar el respaldo de múltiples base de datos, modificaremos nuestro comando, agregando --databases.
+
+        - mysqldump --databases db1 db2 db3 > ruta/archivo_respaldo.sql
+
+        Separaremos las base de datos mediante un espacio.
+
+    Si lo que necesitamos es realizar el respaldo de una o múltiples tablas el comando será el siguiente
+
+    Para una sola tabla
+
+        - mysqldump base_de_datos tabla1 > ruta/archivo_respaldo.sql
+
+    Para múltiples tablas
+
+        - mysqldump base_de_datos tabla1 tabla3 > ruta/archivo_respaldo.sql
+
+*******************************************************************************************
+Asignar permisos a usuarios MySQL
+    
+    Cómo mencionamos anteriormente: el servidor de base de datos permite que más de un usuario pueda trabajar con los recursos del servidor (registros, tablas, bases de datos, funciones, etc..).
+
+    Hasta este punto del curso, todos los ejercicios los hemos realizado utilizando el usuario root.
+
+    Si nosotros somos los únicos administradores del servidor (algo que muy pocas veces sucede) no deberíamos tener problemas en seguir utilizando root, sin embargo, si más personas trabajarán con el servidor, será necesario que generemos nuevos usuarios y asignemos los permisos pertinentes.    
+
+* Agregar nuevos usuarios
+
+    Para que nosotros generemos un nuevo usuario lo primero que debemos de hacer es autenticarnos en el servidor.
+
+        - mysql -u root -p -h localhost<ip>
+
+    Posteriormente debemos de generar un nuevo Usuario, Para esto ejecutamos las siguiente sentencia.
+
+        - CREATE USER 'usuario'@'localhost' IDENTIFIED BY 'password';
+
+    Hasta este punto, nosotros ya podemos autenticarnos con el servidor utilizando el nuevo usuario, sin embargo, una vez autenticado las acciones que podemos hacer son mínimas, debido a que este usuario no posee los permisos necesarios para trabajar con las bases de datos.
+
+* Asignar permisos
+
+    Para poder establecer permisos, las siguiente sentencias deben de ejecutarse utilizando el usuario root.
+
+    Si queremos que el nuevo usuario tenga permisos de administrador (Todos los permisos), debemos de ejecutar la siguiente sentencia.
+
+        - GRANT ALL PRIVILEGES ON *.* TO 'nombre_usuario'@'localhost';
+
+    Los asteriscos indican que los permisos serán asignados a todas las bases de datos y a todas las tablas (primer asteriscos bases de datos, segundo asterisco tablas).
+
+    Si queremos asignar permisos para ciertas acciones, la sentencia quedaría de la siguiente manera. Reemplazamos ALL PRIVILEGES y colocamos las acciones que queremos asignar.
+
+        GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP
+            -> ON codigofacilito.*
+            -> TO 'nombre_usuario'@'localhost';
+
+    En esta ocasión estamos indicando que el nuevo usuario podrá consultar, crear, actualizar y eliminar registros, así cómo podrá crear o eliminar elementos (tablas, índices, columnas, funciones, stores, etc ...).
+
+    Todos estos permisos serán válidos únicamente en la base de datos codigofacilito y se aplicarán a todas las tablas.
+
+        Si queremos asignar permisos únicamente a una tabla, reemplazamos el asteriscos por el nombre de la tabla.
+
+            ejemplo codigofacilito.usuarios
+
+    Una vez hayamos finalizado con los permisos, el último paso será refrescarlos.
+
+        FLUSH PRIVILEGES;
+
+* Permisos
+
+Aquí un listado de algunos permisos que podemos asignar.
+
+    CREATE permite crear nuevas tablas o bases de datos.
+    DROP permite eliminar tablas o bases de datos.
+    DELETE permite eliminar registros de tablas.
+    INSERT permite insertar registros en tablas.
+    SELECT permite leer registros en las tablas.
+    UPDATE permite actualizar registros en las tablas.
+    GRANT OPTION permite remover permisos de usuarios.
+    SHOW DATABASE Permite listar las bases de datos existentes.
+
+* Sentencias a tener en cuenta
+
+    Listado de todos los usuarios.
+
+       SELECT User FROM mysql.user;
+
+    Eliminar un usuario.
+
+       DROP USER 'usuario'@'localhost';
+
+    Remover permisos en concreto (Ejemplo update y delete).
+
+       REVOKE UPDATE, DELETE ON *.* FROM 'usuario'@'localhost';
+
+    Remover todos los privilegios.
+
+       REVOKE ALL PRIVILEGES ON *.* FROM 'usuario'@'localhost';
