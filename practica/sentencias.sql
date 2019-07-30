@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS autores (
 	fecha_creacion DATETIME DEFAULT current_timestamp
 );
 
+ALTER TABLE autores ADD COLUMN cantidad_libros INT DEFAULT 0;
+
 CREATE TABLE IF NOT EXISTS libros (
 	libro_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 	autor_id INT UNSIGNED NOT NULL,

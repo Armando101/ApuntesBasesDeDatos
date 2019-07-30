@@ -16,6 +16,7 @@ COMMIT;
 /* Transacciones y store procedures */
 
 DELIMITER //
+START TRANSACTION;
 CREATE PROCEDURE prestamo_tr(usuario_id INT, libro_id INT)
 BEGIN
 	
