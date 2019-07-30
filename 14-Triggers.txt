@@ -1,0 +1,108 @@
+Triggers Mysql
+	
+	En MySQL un trigger, también conocido como disparador (Por su traducción al español) es un conjunto de sentencias SQL que se ejecutan de forma automática cuando ocurre algún evento de tipo de modificación en una tabla, pero no una modificación de estructura, si no una modificación en cuando a los datos almacenados, es decir, cuando se ejecute una sentencia INSERT, UPDATE o DELETE.
+
+	    A diferencia de una función o un store procedure un trigger no puede existir sin una tabla asociada.
+
+	Lo interresante aquí es que nosotros podemos programar los triggers de tal manera que se puedan ejecutar antes o después de dichas sentencias; Dando como resultado seis combinaciones de eventos.
+
+	    BEFORE INSERT Acciones a realizar antes de insertar uno más o registros en una tabla.
+
+	    AFTER INSERT Acciones a realizar después de insertar uno más o registros en una tabla.
+
+	    BEFORE UPDATE Acciones a realizar antes de actualizar uno más o registros en una tabla.
+
+	    AFTER UPDATE Acciones a realizar después de actualizar uno más o registros en una tabla.
+
+	    BEFORE DELETE Acciones a realizar antes de eliminar uno más o registros en una tabla.
+
+	    AFTER DELETE Acciones a realizar después de eliminar uno más o registros en una tabla.
+
+	A partir de la versión 5.7.2 de MySQL nosotros podemos tener la n cantidad de triggers asociados a una tabla. Anteriormente estábamos limitados a tener un máximo de seis trigger por tabla (Uno por cada combinación evento).
+
+	    Algo importante a mencionar es que la sentencia TRUNCATE no ejecutará un trigger.
+
+	Ventajas de Utilizar triggers
+
+	    Con los triggers nosotros podemos validar datos los cuales no pudieron ser validados mediante un constraint. De esta forma podemos mantener un integridad de datos.
+	    Los triggers nos permitirán ejecutar reglas de negocios. Utilizando la combinación de eventos nosotros podemos realizar acciones sumamente complejas.
+	    Con los triggers nosotros podemos programar tareas.
+	    Los trigger nos permitirán llevar un control de los cambios realizados en una tabla. Para esto nos debemos de apoyar de una segunda tabla (Comúnmente una tabla log).
+
+	Desventajas de Utilizar triggers
+
+	    Los triggers al ejecutarse de forma automática puede dificultar llevar un control sobre qué sentencias SQL fueron ejecutadas.
+
+	    Los triggers incrementa la sobrecarga del servidor. Un mal uso de triggers puede tornarse en respuestas lentas por parte del servidor.
+
+
+**********************************************************************************
+Creación de triggers
+	
+	Colocamos CREATE TRIGGER nombre_del_trigger
+	Tiempo Evento a realizar ON tabla asociada
+	FOR EACH ROW (Para decir que vamos a realizar en cada uno de los registros afectados)
+	BEGIN
+		Sentencias a ejecutar.
+	END;
+
+	Si insertamos un nuevo registro, se verán reflejados los cambios.
+		- INSERT INTO libros(autor_id, titulo, fecha_publicacion)
+		VALUES(1, 'Area 81', '2011-07-01');
+
+	Podemos ver los cambios.
+		- SELECT * FROM autores WHERE autor_id = 1 \G;
+
+**********************************************************************************
+Eliminar triggers
+	
+	Para eliminar un trigger lo hacemos así:
+		-  drop trigger after_insert_actualizacion_libros;
+
+**********************************************************************************
+Evento DELETE
+	
+	Crear un trigger que permita decrecer la columna cantidad_libros siempre que un libro sea eliminado de la base de datos.
+
+		CREATE TRIGGER after_delete_actualizacion_libros
+		AFTER DELETE ON libros
+		FOR EACH ROW
+		BEGIN
+			UPDATE autores SET cantidad_libros = cantidad_libros - 1 WHERE autor_id = OLD.autor_id;
+		END;
+
+	Ahora podemos hacer algunas pruebas
+
+		- SELECT * FROM autores WHERE autor_id = 1 \G;
+
+		- SELECT libro_id, titulo FROM libros;
+
+		- DELETE FROM libros WHERE libro_id = 56;
+
+**********************************************************************************
+Evento Update
+	
+	Generar un trigger que se ejecute cuando se actualice un registro de la tabla libros.
+
+		CREATE TRIGGER after_update_actualizacion_libros
+		AFTER UPDATE ON libros
+		FOR EACH ROW
+		BEGIN
+			-- Si hubo un cambio en la columna THEN
+			IF(NEW.autor_id != OLD.autor_id) THEN
+				UPDATE autores SET cantidad_libros = cantidad_libros + 1 WHERE autor_id = NEW.autor_id;
+				UPDATE autores SET cantidad_libros = cantidad_libros - 1 WHERE autor_id = OLD.autor_id;
+			END IF;
+		END; 
+
+	Ahora podemos ver que se hayan realizado los cambios
+
+		- UPDATE libros SET autor_id = 2 WHERE libro_id = 55
+
+**********************************************************************************
+Listado de trigers
+	Para listar los triggers que tenemos, ejecutamos la siguiente sentencia.
+		- SHOW TRIGGERS\G;
+
+Eliminación de triggers.
+		- DROP TRIGGER IF EXISTS libreria_cf.after_update_actualizacion_libros;
