@@ -1,2 +1,2 @@
-# ApuntesBasesDeDatos
-Apuntes del curso bases de datos relacionales
+# Bases de datos relacionales
+Apuntes del curso de bases de datos relacionales
