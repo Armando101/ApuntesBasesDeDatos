@@ -47,7 +47,7 @@ Crear Vistas
 		INNER JOIN libros_usuarios ON usuarios.usuario_id = libros_usuarios.usuario_id
 		GROUP BY usuarios.usuario_id; 
 
-	Es importante usar el estandar de terminar las vistas con _vw, esto porque para ver las vistas que tenemos ejecutamos el comando:
+	Es importante usar el estandar de terminar las vistas con _vw, esto porque para ver las vistas que tenemos, ejecutamos el comando:
 		- SHOW TABLES;
 
 	Nos mostrará las tablas y las vistas, éstas las identificaremos por su terminación.
@@ -57,7 +57,7 @@ Crear Vistas
 
 	Ahora cada vez que queramos ver los usuarios que tienen libros prestados y cuántos, sólo ejecutamos el comando anterior.
 
-	Como las tablas, también podemos hacer uso de las clausulas como WHERE, ORDER BY y todas las mencionadas anteriormente.
+	Como con las tablas, también podemos hacer uso de las clausulas como WHERE, ORDER BY y todas las mencionadas anteriormente.
 
 	Obtener los usuarios cuyos prestamos hayan sido mayor a 4.
 		- SELECT * FROM prestamos_usuarios_vw WHERE  total_prestamos > 4;

@@ -18,7 +18,7 @@ FOR EACH ROW
 BEGIN
 	UPDATE autores SET cantidad_libros = cantidad_libros - 1 WHERE autor_id = OLD.autor_id;
 END;
--- NEW hace referencia al registro eliminado.
+-- OLD hace referencia al registro eliminado.
 //
 
 CREATE TRIGGER after_update_actualizacion_libros
