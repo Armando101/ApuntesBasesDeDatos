@@ -1,4 +1,4 @@
-Realizar conexión con el servido
+Realizar conexión con el servidor
 	- Abrir una terminal
 	
 	- Ejecutar el programa mysql.server dependiendo la versión se puede hacer de las siguientes 4 maneras. Esto es para iniciar el servidor, si no hacemos este paso y queremos ingresar nos marcará un error.
