@@ -1,0 +1,138 @@
+SQL
+
+	SQL significa Structured Query Language y tiene una estructura clara y fija. Su objetivo es hacer un solo lenguaje para consultar cualquier manejador de bases de datos volviéndose en un gran estándar.
+
+	Ahora existe el NOSQL o Not Only Structured Query Language que significa que no sólo se utiliza SQL. Las bases de datos no relacionales.
+
+DDL create
+
+	SQL tiene dos grandes sublenguajes:
+	DDL o Data Definition Language que nos ayuda a crear la estructura de una base de datos. Existen 3 grandes comandos:
+
+	    Create: Nos ayuda a crear bases de datos, tablas, vistas, índices, etc.
+	    Alter: Ayuda a alterar o modificar entidades.
+	    Drop: Nos ayuda a borrar. Hay que tener cuidado al utilizarlo.
+
+	3 objetos que manipularemos con el lenguaje DDL:
+
+	    Database o bases de datos
+	    Table o tablas. Son la traducción a SQL de las entidades
+	    View o vistas: Se ofrece la proyección de los datos de la base de datos de forma entendible.
+	
+Crear una base de datos.
+
+		- CREATE DATABASE test_db;
+		- USE DATABASE test_db;
+
+	Desde la interfaz gráfica creamos la base de datos, damos click derecho en ella y seleccionamos la opción de Set as Default Schema, esto es el equivalente de USE DATABASE, nos indica que los Querys que vajamos a ejecutar se apliquen a esa base de datos.
+
+Crear tablas
+	En el ícono de la base de datos damos click a la flecha y en la parte de tablas damos click derecho y seleccionamos la opción de crear una nueva tabla.
+
+	Colocamos el nombre de la tabla. Po defaul nos pone una columna de la llave primaria con sus dos características PK (Primary key), NN (Not Null) y AI (Auto Increment).
+	Lo siguiente es colocar todas las columnas necesarias.
+
+	CREATE TABLE people (
+		people_id INT NOT NULL AUTO_INCREMENT,
+		last_name VARCHAR(255) NOT NULL, 
+		frist_name VARCHAR(255),
+		addres VARCHAR(255) NOT NULL,
+		city VARCHAR(255),
+		PRIMARY KEY (people_id)
+	);
+
+	Damos click en el botón apply, nos manda una ventana con as instrucciones que se ejecutarán.
+	Ahora vemos que en la sección de Tables podemos dar click en la flecha y vemos la tabla que acabamos de crear.
+
+*******************************************************************************************
+DDL alter
+
+	Los Views toman datos de la base de datos, los hacen presentables y los convierten en algo que podamos consultar de manera recurrente.
+
+	CREATE VIEW v_brasil_customers AS
+	SELECT customer_name,
+	contact_name
+
+	FROM customers
+	WHERE contry = 'Brasil';
+
+Alterar tablas
+	
+	Agregar columnas
+		ALTER TABLE people
+		ADD date_of_brith DATETIME;
+
+	Modificar columnas
+		ALTER TABLE people
+		ALTER COLUMN date_of_brith year;
+
+	Eliminar columnas
+		ALTER TABLE people
+		DROP COLUMN date_of_brith;
+
+*******************************************************************************************
+DDL drop
+
+	Está puede ser la sentencia ¡más peligrosa! (????), sobre todo cuando somos principiantes. Básicamente borra o desaparece de nuestra base de datos algún elemento.
+
+	DROP TABLE people;
+
+	DROP DATABASE test_db;
+
+*******************************************************************************************
+DML
+
+DML trata del contenido de la base de datos. Son las siglas de Data Manipulation Language y sus comandos son:
+
+    Insert: Inserta o agrega nuevos registros a la tabla.
+    Update: Actualiza o modifica los datos que ya existen.
+    Delete: Esta sentencia es riesgosa porque puede borrar el contenido de una tabla.
+    Select: Trae información de la base de datos.
+
+
+INSERT
+	
+	INSERT INTO people (last_name, first_name, address, city)
+	VALUES ('Hernández', 'Laura', 'Calle 21', 'Monterrey');
+
+UPDATE
+	
+	UPDATE people
+	SET last_name = 'Chavez', city 'Mérida'
+	WHERE person_id = 1;
+
+	UPDATE people
+	SET first_name = 'Juan'
+	WHERE city = 'Mérida';
+
+	UPDATE people
+	SET first_name = 'Juan';
+
+	En última sentencia no específicamos en qué registro queremos que se haga el cambio, por lo tanto este cambio se verá reflejado en todos los registros.
+
+Delete
+	
+	Borra el registro de la persona que tenga id=1.
+		DELETE FROM people
+		WHERE person_id = 1;
+
+	La siguietne sentencia elimina todos los registros de la tabla people.
+		DELETE FROM people;
+
+Select
+	
+	Esta sentencia extrae información de la base de datos.
+		SELECT first_name, last_name
+		FROM people;
+
+¿Qué tan estandard es SQL?
+
+	La utilidad más grande de SQL fue unificar la forma en la que pensamos y hacemos preguntas a un repositorio de datos. Ahora que nacen nuevas bases de datos igualmente siguen tomando elementos de SQL.
+
+*******************************************************************************************
+Generar Diagramas en work brench
+
+	Seleccionamos la opción Database en el menú superios, seleccionamos Reverse Engineer.
+	Continuar, Continuar, seleccionar la base de datos que queremos exportar, continuar, Execute, continuar, close.
+
+	Ahora vemos el diagrama de con las tablas que hemos hecho.

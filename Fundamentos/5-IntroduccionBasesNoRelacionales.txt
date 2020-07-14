@@ -1,0 +1,50 @@
+¿Qué son y cuáles son los tipos de bases de datos no relacionales?
+
+	Respecto a las bases de datos no relacionales, no existe un solo tipo aunque se engloben en una sola categoría.
+
+	Tipos de bases de datos no relacionales:
+
+	    * Clave - valor: Son ideales para almacenar y extraer datos con una clave única. Manejan los diccionarios de manera excepcional. Ejemplos: DynamoDB, Cassandra. Facebook creó Cassandra, esto debido a que una base de datos relacional ya no era una opción viable.
+	    
+	    * Basadas en documentos: Son una implementación de clave valor que varía en la forma semiestructurada en que se trata la información. Ideal para almacenar datos JSON y XML. Ejemplos: MongoDB, Firestore.
+	    
+	    * Basadas en grafos: Basadas en teoría de grafos, sirven para entidades que se encuentran interconectadas por múltiples relaciones. Ideales para almacenar relaciones complejas. Ejemplos: neo4j, TITAN.
+	    
+	    * En memoria: Pueden ser de estructura variada, pero su ventaja radica en la velocidad, ya que al vivir en memoria la extracción de datos es casi inmediata. Ejemplos: Memcached, Redis.
+	    
+	    * Optimizadas para búsquedas: Pueden ser de diversas estructuras, su ventaja radica en que se pueden hacer queries y búsquedas complejas de manera sencilla. Ejemplos: BigQuery, Elasticsearch.
+
+Servicios administrados y jerarquía de datos
+
+	Firestore es un servicio de Google donde puedes tercerizar muchos elementos en la nube.
+	Jerarquía de datos:
+
+		- Base de datos: Contiene toda la información que queremos guardad.
+		- Colección: Colección de documentos, son el equivalente a tablas en bases de datos relaciones.
+		- Documento: Equivalen a las tuplas en las bases de datos relaciones, se guardan en formato similar a JSON.
+
+*******************************************************************************************
+Modelo de datos en bases de datos no relaciones
+	
+Top level collection con firebase
+
+	El modelo de bases de datos no relacionales es un poco más cercano al mundo real en su comportamiento.
+
+	Las top level collections son las colecciones que se tienen de inmediato o entrada en el proyecto.
+
+    Firebase es un servicio que tiene múltiples opciones y está pensado principalmente para aplicaciones móviles y web. No te pido datos de pago en un principio, te pone límites y te empieza a cobrar hasta que tienes una base datos grande.
+
+	Una vez se haya creado el proyecto, damos click en Database y crear base de datos. Nos da dos opciones de seguridad, damos click en la opción deseada y seleccionamos habilitar.
+
+	Damos click en añadir colección, aquí creamos las top level collections, colocamos un ID para la colección y damos en siguiente. Una collección no existe hasta que no tenga al menos un documento, creamos un documento agregando campos, tipo de dato y valor, guardamos el documento.
+
+*******************************************************************************************
+Creando y borrando documentos en firestore
+	
+	La interfaz de firebase es muy amigable a la hora de crear y eliminar documentos, todo es muy intuitivo.
+		
+	Los tipos de datos que nos permite crear en firestore son muy similares a los de las bases de datos relaciones. El tipo map nos permite incluir datos anidados, por ejemplo, Dirección, dentro de este campo podemos tener otro que sea Colonia, calle, número.
+
+	Geopoint: Se refiere a guardar una localización geográfica, esto es de ayuda ya que muchas aplicaciónes la utilizan, por ejemplo, Google Maps; es útil guardar estas localizaciones. Los datos a ingresar son de latitud y longitud.
+
+	Reference: Manda una especie de liga a otro documento.

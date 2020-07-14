@@ -1,0 +1,87 @@
+¿Por qué las consultas son tan importantes?
+
+	Las consultas o queries a una base de datos son una parte fundamental ya que esto podría salvar un negocio o empresa.
+	Alrededor de las consultas a las bases de datos se han creado varias especialidades como ETL o transformación de datos, business intelligence e incluso machine learning.
+
+***********************************************************************************************
+SELECT
+
+	SELECT se encarga de proyectar o mostrar datos.
+
+	    El nombre de las columnas o campos que estamos consultando puede ser cambiado utilizando AS después del nombre del campo y poniendo el nuevo que queremos tener:
+
+	SELECT titulo AS encabezado
+	FROM posts;
+
+	    Existe una función de SELECT para poder contar la cantidad de registros. Esa información (un número) será el resultado del query:
+
+	SELECT COUNT(*)
+	FROM posts;
+
+FROM
+
+	FROM indica de dónde se deben traer los datos y puede ayudar a hacer sentencias y filtros complejos cuando se quieren unir tablas. La sentencia compañera que nos ayuda con este proceso es JOIN.
+
+	Los diagramas de Venn son círculos que se tocan en algún punto para ver dónde está la intersección de conjuntos. Ayudan mucho para poder formular la sentencia JOIN de la manera adecuada dependiendo del query que se quiere hacer.
+
+***********************************************************************************************
+WHERE
+
+	WHERE es la sentencia que nos ayuda a filtrar tuplas o registros dependiendo de las características que elegimos.
+
+	    La propiedad LIKE nos ayuda a traer registros de los cuales conocemos sólo una parte de la información.
+	    La propiedad BETWEEN nos sirve para arrojar registros que estén en el medio de dos. Por ejemplo los registros con id entre 20 y 30.
+
+	    WHERE YEAR(fecha_publicacion) BETWEEN '2023' AND '2024'
+	    WHERE MONTH(fecha_publicacion) = '04'	// Trae todos los post que se publicaron en abril
+
+Utilizando la sentencia WHERE nulo y no nulo
+
+	El valor nulo en una tabla generalmente es su valor por defecto cuando nadie le asignó algo diferente. La sintaxis para hacer búsquedas de datos nulos es IS NULL. La sintaxis para buscar datos que no son nulos es IS NOT NULL
+
+***********************************************************************************************
+ORDER BY y HAVING
+
+	La sentencia ORDER BY tiene que ver con el ordenamiento de los datos dependiendo de los criterios que quieras usar.
+
+	    ASC sirve para ordenar de forma ascendente.
+	    DESC sirve para ordenar de forma descendente.
+	    LIMIT se usa para limitar la cantidad de resultados que arroja el query.
+
+	HAVING tiene una similitud muy grande con WHERE, sin embargo el uso de ellos depende del orden. Cuando se quiere seleccionar tuplas agrupadas únicamente se puede hacer con HAVING.
+
+	Ejemplo:
+
+	SELECT MONTHNAME(fecha_publicacion) AS post_month, estatus, COUNT(*) AS post_quantity
+	FROM post
+	GROUP BY estatus, post_month
+	HAVING post_quantity>2
+	ORDER BY post_month;
+
+	En el query anterior es muy importante el orden ya que primero se agrupan los datos, después se filtran y al final se ordenan.
+
+***********************************************************************************************
+El interminable agujero de conejo (Nested queries)
+
+	Los Nested queries significan que dentro de un query podemos hacer otro query. Esto sirve para hacer joint de tablas, estando una en memoria. También teniendo un query como condicional del otro.
+
+	Este proceso puede ser tan profundo como quieras, teniendo infinitos queries anidados.
+	Se le conoce como un producto cartesiano ya que se multiplican todos los registros de una tabla con todos los del nuevo query. Esto provoca que el query sea difícil de procesar por lo pesado que puede resultar.
+
+	Ejemplo:
+
+		SELECT new_table_projection.date, COUNT(*) AS post_count
+		FROM(
+			SELECT DATE(MIN(fecha_publicacion)) AS date, YEAR(fecha_publicacion) AS post_year
+			FROM post
+			GROUP BY post_year
+		)AS new_table_projection
+		GROUP BY new_table_projection.date
+		ORDER BY new_table_projection.date;
+
+
+		SELECT * FROM posts
+		WHERE fecha_publicacion = (
+			SELECT MAX(fecha_publicacion)
+			FROM posts
+		);

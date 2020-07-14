@@ -1,0 +1,167 @@
+Bienvenida conceptos básicos y contexto histórico de las Bases de Datos
+
+	El almacenamiento en la nube tiene un gran pro comparada con los otros métodos de almacenamiento ya que es accesible desde cualquier parte del mundo. Además es centralizada y puede ser usada por varias personas al mismo tiempo.
+
+	Las bases de datos entran cuando hacemos la transición a medios digitales.
+
+	Tipos de bases de datos:
+
+	Relacionales: En la industria hay varias compañías dedicadas a ser manejadoras de bases de datos relacionales como SQL Server, Oracle, MariaDB, entre otras.
+	No relacionales: Todavía están avanzando y existen ejemplos muy distintos como cassandra, elasticsearch, neo4j, MongoDB, entre otras.
+
+	Servicios:
+
+	    Auto administrados: Es la base de datos que instalas tú y te encargas de actualizaciones, mantenimiento, etc.
+	    Administrados: Servicios que ofrecen las nubes modernas como Azure, Amazon, IBM, entre otras y no debes preocuparte por mantenimiento o actualizaciones.
+
+***************************************************************************************************
+Historia de las RDB
+
+	Las bases de datos surgen de la necesidad de conservar la información más allá de lo que existe en la memoria RAM.
+
+	Las bases de datos basadas en archivos eran datos guardados en texto plano, fáciles de guardar pero muy difíciles de consultar y por la necesidad de mejorar esto nacen las bases de datos relacionales. Su inventor Edgar Codd dejó ciertas reglas para asegurarse de que toda la filosofía de las bases de datos no se perdieran, estandarizando el proceso.
+
+***************************************************************************************************
+Entidades y atributos
+
+	Una entidad es algo similar a un objeto (programación orientada a objetos) y representa algo en el mundo real, incluso algo abstracto, se representan por convención en plural dentro de un rectángulo, por ejemplo, automovil. Tienen atributos que son las cosas que los hacen ser una entidad y por convención se ponen en singular dentro de un óvalo, por ejemplo volante, motor ó llantas, éste ultimo atributo se representa dentro de dos óvalos ya que podemos tener más de dos llantas.
+
+	Los atributos compuestos son aquellos que tienen atributos ellos mismos, por ejemplo motor, se compone de pistones y bujías.
+	Los atributos que se pueden determinar gracias a otros atributos son representados mediante óvalos punteados, por ejemplo, antiguedad, se puede determinar mediante el atributo modelo.
+
+	Los atributos llave son aquellos que identifican a la entidad y no pueden ser repetidos. Existen:
+
+	    Naturales: Son inherentes al objeto como el número de serie
+	    Clave artificial: No es inherente al objeto y se asigna de manera arbitraria.
+
+	Entidades débiles: No pueden existir sin una entidad fuerte y se representan con un rectángulo con doble línea.
+	Ejemplo: Una entidad fuerte es Libros, una débil es ejemplares; no podemos tener ejemplares de un libro que no tenemos, por lo tanto ejemplares de pende de libros.
+
+	    Identidades débiles por identidad: No se diferencian entre sí más que por la clave de su identidad fuerte.
+	    Identidades débiles por existencia: Se les asigna una clave propia.
+
+***************************************************************************************************
+Entidades de un Blog
+
+Nuestro proyecto será un manejador de Blogpost. Es un contexto familiar y nos representará retos muy interesantes.
+
+    Primer paso: Identificar las identidades
+    	Usuarios
+    	Post
+    	Comentarios
+    	Categorias
+
+    Segundo paso: Pensar en los atributos
+    	Post
+    		Título
+    		Fecha de publicación
+    		Contenido
+    		Status
+    		Etiquetas
+    		ID
+
+    	Usuarios
+    		Login
+    		Password
+    		Nickname
+    		Email
+    		ID
+    		Nota: Puede funcionar el email como id, sin embargo no es recomendable ya que el usuario puede cambiar de email deseando conservar toda su información.
+
+    	Comentarios
+    		Contenido
+    		Usuario
+    		likes
+    		ID
+
+    	Categorias
+    		Post
+    		Usuarios
+    		ID
+
+***************************************************************************************************
+Relaciones
+
+	Las relaciones nos permiten ligar o unir nuestras diferentes entidades y se representan con rombos. Por convención se definen a través de verbos. Ejemplo: Entidad Dueño y entidad carro, el verbo que los puede unir es "tiene", Dueño tiene un carro.
+
+	Las relaciones tienen una propiedad llamada cardinalidad y tiene que ver con números. Cuántos de un lado pertenecen a cuántos del otro lado:
+
+	    Cardinalidad: 1 a 1
+	    Cardinalidad: 0 a 1
+	    Cardinalidad: 1 a N
+	    Cardinalidad: 0 a N
+
+	Muchos a Muchos
+
+		Cardinalidad: N a N
+		Por ejemplo la entidad Alumno y la entidad Clase, un alumno puede estar inscrito en más de una clase y una clase tiene muchos alumnos
+
+***************************************************************************************************
+Diagrama ER
+
+	Un diagrama es como un mapa y nos ayuda a entender cuáles son las entidades con las que vamos a trabajar, cuáles son sus relaciones y qué papel van a jugar en las aplicaciones de la base de datos.
+
+***************************************************************************************************
+Diagrama Físico: tipos de datos y constraints
+
+	Para llevar a la práctica un diagrama debemos ir más allá y darle detalle con parámetros como:
+
+	Tipos de dato:
+
+	    Texto: CHAR(n) guarda una cadena de un número de caracteres definido, VARCHAR(n) guarda una cadena dinámica, el tamaño máximo que puede guardar es de 256 caracteres, TEXT
+	    Números: INTEGER, BIGINT, SMALLINT, DECIMAL(n,s), NUMERIC(n,s)
+	    Fecha/hora: DATE, TIME, DATETIME, TIMESTAMP
+	    Lógicos: BOOLEAN
+
+	Constraints (Restricciones)
+
+	    NOT NULL: Se asegura que la columna no tenga valores nulos
+	    UNIQUE: Se asegura que cada valor en la columna no se repita
+	    PRIMARY KEY: Es una combinación de NOT NULL y UNIQUE
+	    FOREIGN KEY: Identifica de manera única una tupla en otra tabla
+	    CHECK: Se asegura que el valor en la columna cumpla una condición dada
+	    DEFAULT: Coloca un valor por defecto cuando no hay un valor especificado
+	    INDEX: Se crea por columna para permitir búsquedas más rápidas
+
+***************************************************************************************************
+Diagrama Físico: normalización
+
+	La normalización como su nombre lo indica nos ayuda a dejar todo de una forma normal. Esto obedece a las 12 reglas de Codd y nos permiten separar componentes en la base de datos:
+
+	    Primera forma normal (1FN): Atributos atómicos (Sin campos repetidos)
+	    Segunda forma normal (2FN): Cumple 1FN y cada campo de la tabla debe depender de una clave única.
+	    Tercera forma normal (3FN): Cumple 1FN y 2FN y los campos que NO son clave, NO deben tener dependencias.
+	    Cuarta forma normal (4FN): Cumple 1FN, 2FN, 3FN y los campos multivaluados se identifican por una clave única.
+
+	Reglas de Codd
+
+		Regla 0: Regla de fundación. Cualquier sistema que se proclame como relacional, debe ser capaz de gestionar sus bases de datos enteramente mediante sus capacidades relacionales.
+
+	    Regla 1: Regla de la información. Toda la información en la base de datos es representada unidireccionalmente por valores en posiciones de las columnas dentro de filas de tablas. Toda la información en una base de datos relacional se representa explícitamente en el nivel Lógico exactamente de una manera: con valores en tablas.
+
+	    Regla 2: Regla del acceso garantizado. Todos los datos deben ser accesibles sin ambigüedad. Esta regla es esencialmente una nueva exposición del requisito fundamental para las llaves primarias. Dice que cada valor escalar individual en la base de datos debe ser lógicamente direccionable especificando el nombre de la tabla, la columna que lo contiene y la llave primaria.
+
+	    Regla 3: Regla del tratamiento sistemático de valores nulos. El sistema de gestión de base de datos debe permitir que haya campos nulos. Debe tener una representación de la "información que falta y de la información inaplicable" que sea sistemática y distinta de todos los valores regulares.
+
+	    Regla 4: Catálogo dinámico en línea basado en el modelo relacional. El sistema debe soportar un catálogo en línea, el catálogo relacional, que da acceso a la estructura de la base de datos y que debe ser accesible a los usuarios autorizados.
+
+	    Regla 5: Regla comprensiva del sublenguaje de los datos. El sistema debe soportar por lo menos un lenguaje relacional que:
+	        Tenga una sintaxis lineal.
+	        Puede ser utilizado de manera interactiva.
+	        Tenga soporte de operaciones de definición de datos, operaciones de manipulación de datos (actualización así como la recuperación), de control de la seguridad e integridad y operaciones de administración de transacciones.
+
+	    Regla 6: Regla de actualización de vistas. Todas las vistas que son teóricamente actualizables deben poder ser actualizadas por el sistema.
+
+	    Regla 7: Alto nivel de inserción, actualización y borrado. El sistema debe permitir la manipulación de alto nivel en los datos, es decir, sobre conjuntos de tuplas. Esto significa que los datos no solo se pueden recuperar de una base de datos relacional a partir de filas múltiples y/o de tablas múltiples, sino que también pueden realizarse inserciones, actualización y borrados sobre varias tuplas y/o tablas al mismo tiempo y no solo sobre registros individuales.
+
+	    Regla 8: Independencia física de los datos. Los programas de aplicación y actividades del terminal permanecen inalterados a nivel lógico aunque realicen cambios en las representaciones de almacenamiento o métodos de acceso.
+
+	    Regla 9: Independencia lógica de los datos. Los programas de aplicación y actividades del terminal permanecen inalterados a nivel lógico aunque se realicen cambios a las tablas base que preserven la información. La independencia de datos lógica es más difícil de lograr que la independencia física de datos.
+
+	    Regla 10: Independencia de la integridad. Las restricciones de integridad se deben especificar por separado de los programas de aplicación y almacenarse en la base de datos. Debe ser posible cambiar esas restricciones sin afectar innecesariamente a las aplicaciones existentes.
+
+	    Regla 11: Independencia de la distribución. La distribución de porciones de base de datos en distintas localizaciones debe ser invisible a los usuarios de la base de datos. Los usos existentes deben continuar funcionando con éxito:
+	        cuando una versión distribuida del SGBD se carga por primera vez
+	        cuando los datos existentes se redistribuyen en el sistema.
+
+	    Regla 12: La regla de la no subversión. Si el sistema proporciona una interfaz de bajo nivel de registro, aparte de una interfaz relacional, esa interfaz de bajo nivel no debe permitir su utilización para subvertir el sistema. Por ejemplo para sortear las reglas de seguridad relacional o las restricciones de integridad. Esto es debido a que a algunos sistemas no relacionales previamente existentes se les añadió una interfaz relacional pero, al mantener la interfaz nativa, seguía existiendo la posibilidad de trabajar no relacionalmente.

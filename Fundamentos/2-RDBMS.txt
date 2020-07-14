@@ -1,0 +1,21 @@
+
+RDBMS
+	
+	Relational Database Management System, Sistema manejador de bases de datos relacionales.
+	Es un programa que se encarga de cumplir las reglas de cod y de llegar la parte teórica a la parte práctica. Algunos manejadores de bases de datos son MySQL, Postgres y Oracle.
+
+	Para descargar MySQL en Windows vamos a la página oficial y descargamos el instalador de MySQL community versión 5.6, escogemos la opción de custom como forma de instalación ya que no usaremos muchos paquetes. Seleccionamos las siguientes opciones:
+		MySQL Server 5.6
+		MySQL Workbench 8 
+
+	Una vez terminada la instalación hacemos las configuraciones, seleccionamos la opción Development Computer, en connectivity seleccionamos port 3306. Después de esto asignamos las contraseñas, después de esto damos en ejecutar y terminamos con la instalación.
+
+	Link de descarga: https://dev.mysql.com/downloads/windows/installer/5.6.html
+
+**************************************************************************************************
+Clientes gráficos
+
+	Workbrench es un tipo de herramienta llamado cliente gráfico, esta es una forma gráfica de ver la base de datos, es similar a una hoja de exel, en forma de tablas. 
+
+Crear una base de datos.
+	Para crear una base de datos en Workbrench damos clic derecho en schemas, create schema, damos nombre al schema y seleccionamos la opción de caracteres en utf8, damos en apply y de esta manera estríamos creando una base de datos.
